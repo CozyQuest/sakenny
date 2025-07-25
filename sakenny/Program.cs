@@ -18,46 +18,48 @@ namespace sakenny
             builder.Services.AddDbContext<ApplicationDBContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-            {
-                options.Password.RequiredLength = 6;
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<ApplicationDBContext>()
-              .AddDefaultTokenProviders();
+            //builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            //{
+            //    options.Password.RequiredLength = 6;
+            //    options.Password.RequireDigit = true;
+            //    options.Password.RequireLowercase = true;
+            //    options.Password.RequireUppercase = true;
+            //    options.Password.RequireNonAlphanumeric = false;
+            //}).AddEntityFrameworkStores<ApplicationDBContext>()
+            //  .AddDefaultTokenProviders();
 
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-                };
-            });
+            //builder.Services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //}).AddJwtBearer(options =>
+            //{
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = false,
+            //        ValidateLifetime = true,
+            //        ValidateIssuerSigningKey = true,
+            //        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            //        ValidAudience = builder.Configuration["Jwt:Audience"],
+            //        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            //    };
+            //});
 
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminRole", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("UserRole", policy => policy.RequireRole("User"));
-                options.AddPolicy("HostRole", policy => policy.RequireRole("Host"));
-            });
+            //builder.Services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("AdminRole", policy => policy.RequireRole("Admin"));
+            //    options.AddPolicy("UserRole", policy => policy.RequireRole("User"));
+            //    options.AddPolicy("HostRole", policy => policy.RequireRole("Host"));
+            //});
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddIdentityApiEndpoints<User>().AddEntityFrameworkStores<ApplicationDBContext>();
+            builder.Services.AddIdentityApiEndpoints<Admin>().AddEntityFrameworkStores<ApplicationDBContext>();
 
             var app = builder.Build();
 
@@ -68,10 +70,14 @@ namespace sakenny
                 app.UseSwaggerUI();
             }
 
+            
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
+            app.MapIdentityApi<User>();
+            app.MapIdentityApi<Admin>();
 
             app.MapControllers();
 

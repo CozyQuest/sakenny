@@ -8,9 +8,9 @@
         public bool status { get; set; }
 
         //navigation property many between property permit and admin
-        public Admin Admins { get; set; }
+        public Admin Admin { get; set; }
 
         //navigation property many between property permit and propertyID
-        public Property Properties { get; set; }
+        public Property Property { get; set; }
     }
 }

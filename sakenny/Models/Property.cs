@@ -20,7 +20,7 @@
         public decimal Price { get; set; }
         public int PeopleCapacity { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int MainImageId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Service> Services { get; set; }

@@ -32,7 +32,7 @@ namespace sakenny.Models
             builder.Property(p => p.City).IsRequired();
             builder.Property(p => p.District).IsRequired();
 
-            builder.HasOne<User>()
+            builder.HasOne(p => p.User)
                 .WithMany(u => u.Properties)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);

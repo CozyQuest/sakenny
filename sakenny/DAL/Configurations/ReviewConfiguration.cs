@@ -19,7 +19,7 @@ namespace sakenny.Models
                    .HasForeignKey(r => r.PropertyId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne<User>()
+            builder.HasOne(p => p.User)
                    .WithMany(u => u.Reviews)
                    .HasForeignKey(r => r.UserId)
                    .OnDelete(DeleteBehavior.Restrict);

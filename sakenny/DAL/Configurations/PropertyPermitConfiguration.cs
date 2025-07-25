@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using sakenny.Models;
 
 namespace sakenny.Models
 {
@@ -10,17 +9,17 @@ namespace sakenny.Models
         {
             builder.HasKey(p => p.id);
 
-            // AdminID is the foreign key for Admin
+            // Configure relationship with Admin
             builder
-                .HasOne(p => p.Admins)
-                .WithMany()
+                .HasOne(p => p.Admin)
+                .WithMany(a => a.PropertyPermits) // Reference the collection in Admin
                 .HasForeignKey(p => p.AdminID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // PropertyID is the foreign key for Property
+            // Configure relationship with Property
             builder
-                .HasOne(p => p.Properties)
-                .WithMany() 
+                .HasOne(p => p.Property)
+                .WithMany(prop => prop.PropertyPermits) // Reference the collection in Property
                 .HasForeignKey(p => p.PropertyID)
                 .OnDelete(DeleteBehavior.Cascade);
 
