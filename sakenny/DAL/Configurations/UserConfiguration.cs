@@ -12,19 +12,11 @@ namespace sakenny.Models
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.HasKey(u => u.Id);
+            // Remove HasKey - it's inherited from IdentityUser
+            // Remove Email, PasswordHash, and PhoneNumber - they're inherited properties
 
             builder.Property(u => u.FirstName).IsRequired().HasMaxLength(50);
-
             builder.Property(u => u.LastName).IsRequired().HasMaxLength(50);
-
-            builder.Property(u => u.Email).IsRequired().HasMaxLength(100);
-
-            builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(100);
-
-            builder.Property(u => u.PhoneNumber).IsRequired().HasMaxLength(15);
-
-
         }
     }
 }

@@ -12,15 +12,13 @@ namespace sakenny.Models
     {
         public void Configure(EntityTypeBuilder<Admin> builder)
         {
-            builder.HasKey(a => a.Id);
+            // Remove HasKey - it's inherited from IdentityUser
+            // Remove Email and PhoneNumber - they're inherited properties
 
             builder.Property(a => a.FName).IsRequired();
             builder.Property(a => a.LName).IsRequired();
-            builder.Property(a => a.Email).IsRequired();
-            builder.Property(a => a.PhoneNumber).IsRequired();
-
-            builder.Property(a => a.AdminSpecificProperty)
-               .HasMaxLength(100);
+            
+            // Remove the AdminSpecificProperty line as it doesn't exist in the model
         }
     }
 }
