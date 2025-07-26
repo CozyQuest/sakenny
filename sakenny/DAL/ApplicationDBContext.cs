@@ -18,6 +18,7 @@ namespace sakenny.DAL
         public DbSet<Image> Images { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<PropertyType> PropertyTypes { get; set; }
+        public DbSet<DummyTable> DummyTables { get; set; }
         //public DbSet<Admin> Admins { get; set; }
         //public DbSet<User> Users { get; set; }
 

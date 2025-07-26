@@ -12,8 +12,8 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250725184637_InitSchema")]
-    partial class InitSchema
+    [Migration("20250726102653_WeshAseelMonawar")]
+    partial class WeshAseelMonawar
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

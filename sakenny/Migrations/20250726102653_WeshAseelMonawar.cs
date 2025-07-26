@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace sakenny.Migrations
 {
     /// <inheritdoc />
-    public partial class InitSchema : Migration
+    public partial class WeshAseelMonawar : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
