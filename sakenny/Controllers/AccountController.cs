@@ -41,7 +41,10 @@ namespace sakenny.Controllers
                 PhoneNumber = model.PhoneNumber
             };
             var result = await _userManager.CreateAsync(user, model.Password);
-
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
             await assignRole();
 
             var succeded = await _userManager.AddToRoleAsync(user, "User");

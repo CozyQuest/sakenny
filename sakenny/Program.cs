@@ -24,7 +24,8 @@ namespace sakenny
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireNonAlphanumeric = true;
+                options.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<ApplicationDBContext>()
               .AddDefaultTokenProviders();
 
@@ -68,9 +69,6 @@ namespace sakenny
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            
-
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
