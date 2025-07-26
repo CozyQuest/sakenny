@@ -24,11 +24,11 @@ namespace sakenny.DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<IdentityUser>()
-            //.HasDiscriminator<string>("UserType")
-            //.HasValue<IdentityUser>("IdentityUser")
-            //.HasValue<Admin>("Admin")
-            //.HasValue<User>("User");
+            modelBuilder.Entity<IdentityUser>()
+            .HasDiscriminator<string>("UserType")
+            .HasValue<IdentityUser>("IdentityUser")
+            .HasValue<Admin>("Admin")
+            .HasValue<User>("User");
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDBContext).Assembly);
             base.OnModelCreating(modelBuilder);

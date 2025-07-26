@@ -15,8 +15,8 @@ namespace sakenny.Models
             // Remove HasKey - it's inherited from IdentityUser
             // Remove Email and PhoneNumber - they're inherited properties
 
-            builder.Property(a => a.FName).IsRequired();
-            builder.Property(a => a.LName).IsRequired();
+            //builder.Property(a => a.FName).IsRequired();
+            //builder.Property(a => a.LName).IsRequired();
             
             // Remove the AdminSpecificProperty line as it doesn't exist in the model
         }

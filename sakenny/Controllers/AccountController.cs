@@ -102,6 +102,7 @@ namespace sakenny.Controllers
             var succeded = await _userManager.AddToRoleAsync(user, "Admin");
 
 
+
             if (succeded.Succeeded)
             {
                 return Ok("Account Created Successfully");
@@ -114,10 +115,14 @@ namespace sakenny.Controllers
         {
             var roleExists = await _roleManager.RoleExistsAsync("User");
             var adminExists = await _roleManager.RoleExistsAsync("Admin");
-            if (!roleExists || !adminExists)
+            if (!roleExists)
             {
                 await _roleManager.CreateAsync(new IdentityRole("User"));
+            }
+            if (!adminExists)
+            {
                 await _roleManager.CreateAsync(new IdentityRole("Admin"));
+
             }
             return true;
         }
