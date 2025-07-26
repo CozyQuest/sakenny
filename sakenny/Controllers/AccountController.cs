@@ -47,7 +47,6 @@ namespace sakenny.Controllers
                 return BadRequest(result.Errors);
             }
             await assignRole();
-
             var succeded = await _userManager.AddToRoleAsync(user, "User");
 
 
