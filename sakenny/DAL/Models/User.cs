@@ -10,7 +10,6 @@ namespace sakenny.DAL.Models
         public string LastName { get; set; }
         public string UrlProfilePicture { get; set; }
         public virtual ICollection<Property>? Properties { get; set; } = new Collection<Property>();
-
         public virtual ICollection<Review>? Reviews { get; set; } = new Collection<Review>();
         public virtual ICollection<Renting>? Rentings { get; set; } = new Collection<Renting>();
     }
