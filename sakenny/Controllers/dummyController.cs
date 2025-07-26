@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using sakenny.DAL;
+using sakenny.DAL.Models;
 using sakenny.Models;
 using System.Security.Claims;
 

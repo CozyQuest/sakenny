@@ -1,6 +1,8 @@
-﻿namespace sakenny.Models
+﻿using sakenny.DAL.Interfaces;
+
+namespace sakenny.DAL.Models
 {
-    public class Review
+    public class Review : ISoftDeletable
     {
         public int Id { get; set; }
         public int PropertyId { get; set; }

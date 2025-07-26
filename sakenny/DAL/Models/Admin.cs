@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace sakenny.Models
+namespace sakenny.DAL.Models
 {
     public class Admin : IdentityUser
     {

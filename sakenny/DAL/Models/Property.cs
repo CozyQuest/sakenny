@@ -1,6 +1,8 @@
-﻿namespace sakenny.Models
+﻿using sakenny.DAL.Interfaces;
+
+namespace sakenny.DAL.Models
 {
-    public class Property
+    public class Property : ISoftDeletable
     {
         public int Id { get; set; }
         public string Title { get; set; }

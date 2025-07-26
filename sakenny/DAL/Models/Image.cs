@@ -1,6 +1,8 @@
-﻿namespace sakenny.Models
+﻿using sakenny.DAL.Interfaces;
+
+namespace sakenny.DAL.Models
 {
-    public class Image
+    public class Image : ISoftDeletable
     {
         public int Id { get; set; }
         public string Url { get; set; }

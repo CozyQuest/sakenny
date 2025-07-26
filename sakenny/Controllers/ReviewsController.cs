@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using sakenny.Models;
+using sakenny.DAL.Models;
 
 namespace sakenny.Controllers
 {
