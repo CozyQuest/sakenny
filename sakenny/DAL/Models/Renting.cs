@@ -1,4 +1,4 @@
-﻿namespace sakenny.Models
+﻿namespace sakenny.DAL.Models
 {
     public class Renting
     {
@@ -10,7 +10,6 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal TotalPrice { get; set; }
-        public bool IsDeleted { get; set; } = false;
         public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
     }
 }

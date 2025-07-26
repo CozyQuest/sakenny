@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using sakenny.DAL.Models;
 
 namespace sakenny.Models
 {
@@ -27,7 +28,6 @@ namespace sakenny.Models
                    .HasForeignKey(r => r.UserId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasQueryFilter(r => !r.IsDeleted);
         }
     }
 }
