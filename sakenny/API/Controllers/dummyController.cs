@@ -6,7 +6,7 @@ using sakenny.DAL.Models;
 using sakenny.Models;
 using System.Security.Claims;
 
-namespace sakenny.Controllers
+namespace sakenny.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
