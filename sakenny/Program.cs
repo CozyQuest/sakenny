@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using sakenny.API.Mapping;
 using sakenny.Application.Interfaces;
 using sakenny.Application.Services;
 using sakenny.DAL;
@@ -86,7 +85,11 @@ namespace sakenny
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             //builder.Services.AddIdentityApiEndpoints<User>().AddEntityFrameworkStores<ApplicationDBContext>();
+
+            builder.Services.AddScoped<BlobService>();
+            builder.Services.AddScoped<IImageService, ImageService>();
 
             var app = builder.Build();
 

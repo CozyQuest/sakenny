@@ -1,6 +1,4 @@
-﻿using sakenny.DAL.Interfaces;
-
-namespace sakenny.DAL.Models
+﻿namespace sakenny.DAL.Models
 {
     public class Property : ISoftDeletable
     {
