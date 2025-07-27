@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using sakenny.API.Mapping;
+using sakenny.Application.Interfaces;
 using sakenny.Application.Services;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
@@ -29,7 +30,9 @@ namespace sakenny
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
-            
+
+            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", builder =>
