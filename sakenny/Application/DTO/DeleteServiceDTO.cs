@@ -2,10 +2,10 @@
 
 namespace sakenny.Application.DTO
 {
-    public class AddServiceDTO
+    public class DeleteServiceDTO
     {
         [Required]
-        public string Name { get; set; }
+        public int Id { get; set; }
 
     }
 }

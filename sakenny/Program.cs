@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using sakenny.API.Mapping;
+using sakenny.Application.Services;
 using sakenny.DAL;
 using sakenny.Models;
 
@@ -20,6 +21,9 @@ namespace sakenny
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddAutoMapper(cfg=>cfg.AddProfile<MappingProfile>());
+
+            builder.Services.AddScoped<IPropertyServicesService, PropertyServicesService>();
+
 
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>

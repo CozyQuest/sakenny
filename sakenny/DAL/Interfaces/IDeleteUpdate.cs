@@ -4,6 +4,6 @@
     {
         void DeleteAsync(T entity);
         void UpdateAsync(T entity);
-        void SoftDeleteAsycn(T entity);
+        void SoftDeleteAsync(T entity);
     }
 }
