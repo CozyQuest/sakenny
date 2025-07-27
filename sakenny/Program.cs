@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using sakenny.API.Mapping;
 using sakenny.Application.Services;
 using sakenny.DAL;
+using sakenny.DAL.Interfaces;
+using sakenny.DAL.Repository;
 using sakenny.Models;
 
 namespace sakenny
@@ -20,9 +22,23 @@ namespace sakenny
             builder.Services.AddDbContext<ApplicationDBContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
             builder.Services.AddAutoMapper(cfg=>cfg.AddProfile<MappingProfile>());
 
             builder.Services.AddScoped<IPropertyServicesService, PropertyServicesService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
+            
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
 
 
 
@@ -80,6 +96,8 @@ namespace sakenny
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
+            app.UseCors("AllowAll");
 
             //app.MapIdentityApi<User>();
 
