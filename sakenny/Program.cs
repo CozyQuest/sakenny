@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using sakenny.API.Mapping;
+using sakenny.Application.Services;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Repository;
@@ -24,6 +25,7 @@ namespace sakenny
 
             builder.Services.AddAutoMapper(cfg=>cfg.AddProfile<MappingProfile>());
 
+            builder.Services.AddScoped<IPropertyServicesService, PropertyServicesService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));

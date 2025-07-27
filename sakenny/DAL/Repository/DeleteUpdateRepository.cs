@@ -27,7 +27,7 @@ namespace sakenny.DAL.Repository
             }
             _context.Set<T>().Update(entity);
         }
-        public void SoftDeleteAsycn(T entity)
+        public void SoftDeleteAsync(T entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
