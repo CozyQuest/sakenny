@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using sakenny.API.Mapping;
 using sakenny.DAL;
 using sakenny.Models;
 
@@ -17,6 +18,9 @@ namespace sakenny
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDBContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddAutoMapper(cfg=>cfg.AddProfile<MappingProfile>());
+
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
