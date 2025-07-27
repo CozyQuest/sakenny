@@ -1,6 +1,6 @@
-﻿using sakenny.DAL;
+﻿using sakenny.Application.Interfaces;
 
-namespace sakenny.Services
+namespace sakenny.Application.Services
 {
     public class ImageService : IImageService
     {

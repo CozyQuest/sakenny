@@ -1,4 +1,4 @@
-﻿namespace sakenny.Models
+﻿namespace sakenny.DAL.Models
 {
     public class Service
     {

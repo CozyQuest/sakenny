@@ -1,4 +1,4 @@
-﻿namespace sakenny.DAL
+﻿namespace sakenny.Application.Interfaces
 {
     public interface IImageService
     {

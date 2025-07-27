@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using sakenny.Models;
+using sakenny.DAL.Models;
 using System;
 
 namespace sakenny.DAL

@@ -1,6 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-namespace sakenny
+namespace sakenny.Application.Services
 {
     public class BlobService
     {

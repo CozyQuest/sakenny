@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace sakenny.DAL.DTO
+namespace sakenny.Application.DTO
 {
     public class LoginDTO
     {

@@ -1,10 +1,10 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Mvc;
 using sakenny;
-using sakenny.DAL.DTO;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using sakenny.DAL;
+using sakenny.Application.DTO;
+using sakenny.Application.Interfaces;
 
 
 [ApiController]

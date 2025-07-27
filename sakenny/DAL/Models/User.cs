@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Collections.ObjectModel;
 
-namespace sakenny.Models
+namespace sakenny.DAL.Models
 {
     public class User : IdentityUser
     {

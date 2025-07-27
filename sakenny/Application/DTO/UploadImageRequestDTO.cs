@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace sakenny.DAL.DTO
+namespace sakenny.Application.DTO
 {
     public class UploadImageRequestDTO
     {

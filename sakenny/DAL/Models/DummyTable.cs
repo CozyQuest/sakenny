@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace sakenny.Models
+namespace sakenny.DAL.Models
 {
     public class DummyTable
     {

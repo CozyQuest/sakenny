@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using sakenny.Models;
+using sakenny.DAL.Models;
 
-namespace sakenny.Controllers
+namespace sakenny.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
