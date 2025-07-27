@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using sakenny.API.Mapping;
 using sakenny.Application.Interfaces;
 using sakenny.Application.Services;
 using sakenny.DAL;

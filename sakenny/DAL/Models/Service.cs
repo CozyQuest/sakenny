@@ -1,3 +1,4 @@
+using sakenny.DAL.Interfaces;
 
 namespace sakenny.DAL.Models
 {
