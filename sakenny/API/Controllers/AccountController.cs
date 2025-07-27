@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using sakenny.Application.DTO;
 using sakenny.DAL;
+using sakenny.DAL.Models;
 using sakenny.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
