@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using sakenny.API.Mapping;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Repository;
@@ -20,6 +21,9 @@ namespace sakenny
             builder.Services.AddDbContext<ApplicationDBContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+            builder.Services.AddAutoMapper(cfg=>cfg.AddProfile<MappingProfile>());
+
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
@@ -33,6 +37,7 @@ namespace sakenny
                            .AllowAnyHeader();
                 });
             });
+
 
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
