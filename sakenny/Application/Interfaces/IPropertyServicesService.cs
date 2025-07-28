@@ -8,6 +8,6 @@ namespace sakenny.Application.Services
         Task<IEnumerable<Service>> GetAllAsync();
         Task AddServiceAsync(AddServiceDTO dto);
         Task UpdateServiceAsync(UpdateServiceDTO dto);
-        Task DeleteServiceAsync(long id);
+        Task DeleteServiceAsync(int id);
     }
 }

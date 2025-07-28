@@ -41,9 +41,18 @@ namespace sakenny.DAL.Repository
             return await query.ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(long id)
+        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().FirstOrDefaultAsync(e => EF.Property<long>(e, "Id") == id);
+            IQueryable<T> query = _context.Set<T>();
+
+            // Apply includes
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            // Apply the ID filter
+            return await query.FirstOrDefaultAsync(e => EF.Property<long>(e, "Id") == id);
         }
     }
 }

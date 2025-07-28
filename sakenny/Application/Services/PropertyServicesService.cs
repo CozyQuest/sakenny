@@ -38,7 +38,7 @@ namespace sakenny.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteServiceAsync(long id)
+        public async Task DeleteServiceAsync(int id)
         {
             var service = await _unitOfWork.Services.GetByIdAsync(id);
             if (service == null) throw new Exception("Service not found");
