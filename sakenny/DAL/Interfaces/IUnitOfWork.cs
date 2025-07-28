@@ -1,4 +1,5 @@
-﻿using sakenny.DAL.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using sakenny.DAL.Models;
 
 namespace sakenny.DAL.Interfaces
 {
@@ -11,6 +12,9 @@ namespace sakenny.DAL.Interfaces
         IDeleteUpdate<Service> Services { get; }
         IDeleteUpdate<PropertyType> PropertyTypes { get; }
         IBaseRepository<PropertyPermit> PropertyPermits { get; }
+
+        UserManager<IdentityUser> userManager { get; }
+        RoleManager<IdentityRole> roleManager { get; }
         Task<int> SaveChangesAsync();
     }
 }

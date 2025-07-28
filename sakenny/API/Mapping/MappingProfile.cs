@@ -23,6 +23,10 @@ namespace sakenny.API.Mapping
                                                              .Select(offset => r.StartDate.AddDays(offset)))
                                   .Distinct()
                                   .ToList()));
+            
+            // Add User mapping
+            CreateMap<RegistrationDTO, User>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
         }
     }
 }
