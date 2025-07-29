@@ -12,5 +12,8 @@
 
         //navigation property many between property permit and propertyID
         public Property Property { get; set; }
+        
+        // ✅ Keep this - PropertyPermit is the principal side
+        public virtual PropertySnapshot PropertySnapshot { get; set; }
     }
 }
