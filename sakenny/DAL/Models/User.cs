@@ -9,8 +9,8 @@ namespace sakenny.DAL.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UrlProfilePicture { get; set; }
-        public string UrlIdFront { get; set; }
-        public string UrlIdBack { get; set; }
+        public string ?UrlIdFront { get; set; }
+        public string ?UrlIdBack { get; set; }
 
         public virtual ICollection<Property>? Properties { get; set; } = new Collection<Property>();
         public virtual ICollection<Review>? Reviews { get; set; } = new Collection<Review>();
