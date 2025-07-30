@@ -3,7 +3,7 @@
     public class PropertyPermit
     {
         public int id { get; set; }
-        public string AdminID { get; set; }
+        public string ?AdminID { get; set; }
         public int PropertyID { get; set; }
         // "Pending" - "Accepted" - "Rejected"
         public PropertyStatus status { get; set; } = PropertyStatus.Pending;
