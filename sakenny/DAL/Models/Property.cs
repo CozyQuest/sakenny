@@ -20,9 +20,7 @@ namespace sakenny.DAL.Models
         public double Space { get; set; }
         public decimal Price { get; set; }
         public int PeopleCapacity { get; set; }
-        
-        //have a default status of "Pending" -- this can be changed later to "Approved" or "Rejected"
-        public string status { get; set; } = "Pending"; // Default status 
+        public PropertyStatus Status { get; set; } = PropertyStatus.Pending;
         public bool IsDeleted { get; set; } = false;
         public string UserId { get; set; }
         public int? MainImageId { get; set; }
