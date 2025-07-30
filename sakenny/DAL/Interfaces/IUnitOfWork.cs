@@ -12,7 +12,7 @@ namespace sakenny.DAL.Interfaces
         IDeleteUpdate<Service> Services { get; }
         IDeleteUpdate<PropertyType> PropertyTypes { get; }
         IBaseRepository<PropertyPermit> PropertyPermits { get; }
-
+        IDeleteUpdate<PropertySnapshot> PropertySnapshots { get; }
         UserManager<IdentityUser> userManager { get; }
         RoleManager<IdentityRole> roleManager { get; }
         Task<int> SaveChangesAsync();
