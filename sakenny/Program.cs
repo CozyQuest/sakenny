@@ -28,6 +28,7 @@ namespace sakenny
 
             builder.Services.AddScoped<IPropertyServicesService, PropertyServicesService>();
             builder.Services.AddScoped<IPropertyTypeService, PropertyTypeService>();
+            builder.Services.AddScoped<IPropertyService, PropertyService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
