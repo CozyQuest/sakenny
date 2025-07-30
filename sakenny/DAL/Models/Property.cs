@@ -23,10 +23,9 @@ namespace sakenny.DAL.Models
         public PropertyStatus Status { get; set; } = PropertyStatus.Pending;
         public bool IsDeleted { get; set; } = false;
         public string UserId { get; set; }
-        public int? MainImageId { get; set; }
+        public string MainImageUrl { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Service> Services { get; set; }
-        public virtual Image MainImage { get; set; }
         public virtual ICollection<Image>? Images { get; set; }
         public virtual ICollection<Review>? Reviews { get; set; }
         public virtual ICollection<Renting>? Rentings { get; set; }

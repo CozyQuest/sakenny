@@ -31,12 +31,11 @@ namespace sakenny.DAL.Models
         public int PeopleCapacity { get; set; }
         public bool IsDeleted { get; set; } = false;
         public string UserId { get; set; }
-        public int? MainImageId { get; set; }
+        public string MainImageUrl { get; set; }
         
         // Navigation properties
         public virtual User User { get; set; }
         public virtual ICollection<Service> Services { get; set; } = new HashSet<Service>();
-        public virtual Image MainImage { get; set; }
         public virtual PropertyType PropertyType { get; set; }
         public virtual PropertyPermit PropertyPermit { get; set; } // ✅ 1-1 relationship
         public virtual Property Property { get; set; }

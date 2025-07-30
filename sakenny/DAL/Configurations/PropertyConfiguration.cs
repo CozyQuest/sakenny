@@ -43,10 +43,8 @@ namespace sakenny.Models
                 .HasForeignKey(p => p.PropertyTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(p => p.MainImage)
-                   .WithOne()
-                   .HasForeignKey<Property>(p => p.MainImageId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(p => p.MainImageUrl)
+                .HasMaxLength(500);
 
             builder.HasMany(p => p.Images)
                 .WithOne(i => i.Property)
