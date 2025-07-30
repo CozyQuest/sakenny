@@ -8,7 +8,7 @@ namespace sakenny.API.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Service,AddServiceDTO>()
+            CreateMap<Service, AddServiceDTO>()
                 .ReverseMap();
             CreateMap<Service, UpdateServiceDTO>().ReverseMap();
             CreateMap<Service, DeleteServiceDTO>()
@@ -23,10 +23,14 @@ namespace sakenny.API.Mapping
                                                              .Select(offset => r.StartDate.AddDays(offset)))
                                   .Distinct()
                                   .ToList()));
-            
+
             // Add User mapping
             CreateMap<RegistrationDTO, User>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+
+            CreateMap<Property, PropertyDTO>();
+            CreateMap<AddPropertyDTO, Property>();
+
         }
     }
 }
