@@ -12,6 +12,10 @@ namespace sakenny.API.Mapping
             CreateMap<Service, UpdateServiceDTO>().ReverseMap();
             CreateMap<Service, GetAllServiceDTO>();
 
+            CreateMap<PropertyType,AddTypeDTO>().ReverseMap();
+            CreateMap<PropertyType, UpdateTypeDTO>().ReverseMap();
+            CreateMap<PropertyType, GetAllTypeDTO>();
+
 
             CreateMap<Property, PropertyCheckoutDTO>()
                 .ForMember(dest => dest.MainImageURL,
