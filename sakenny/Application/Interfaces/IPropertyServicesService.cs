@@ -5,7 +5,7 @@ namespace sakenny.Application.Services
 {
     public interface IPropertyServicesService
     {
-        Task<IEnumerable<Service>> GetAllAsync();
+        Task<IEnumerable<GetAllServiceDTO>> GetAllAsync();
         Task AddServiceAsync(AddServiceDTO dto);
         Task UpdateServiceAsync(UpdateServiceDTO dto);
         Task DeleteServiceAsync(int id);

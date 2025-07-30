@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using sakenny.Application.DTO;
 using sakenny.Application.Services;
 
@@ -26,15 +27,26 @@ namespace sakenny.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddServiceDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            await _service.AddServiceAsync(dto);
-            return Ok("Service added successfully.");
+            if (!ModelState.IsValid)
+                return BadRequest(ExtractModelErrors(ModelState));
+
+            try
+            {
+                await _service.AddServiceAsync(dto);
+                return Ok("Service added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal error: {ex.Message}");
+            }
         }
+
 
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateServiceDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ExtractModelErrors(ModelState));
 
             try
             {
@@ -60,6 +72,14 @@ namespace sakenny.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        private List<string> ExtractModelErrors(ModelStateDictionary modelState)
+        {
+            return modelState.Values.SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage)
+                                    .ToList();
+        }
+
     }
 }
 

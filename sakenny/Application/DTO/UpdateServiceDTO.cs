@@ -2,10 +2,10 @@
 
 namespace sakenny.Application.DTO
 {
-    public class UpdateServiceDTO
+    public class UpdateServiceDTO : AddServiceDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Service ID is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "ID must be greater than 0.")]
         public int Id { get; set; }
-        public string Name { get; set; }
     }
 }

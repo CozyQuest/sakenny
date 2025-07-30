@@ -16,10 +16,12 @@ namespace sakenny.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Service>> GetAllAsync()
+        public async Task<IEnumerable<GetAllServiceDTO>> GetAllAsync()
         {
-            return await _unitOfWork.Services.GetAllAsync();
+            var services = await _unitOfWork.Services.GetAllAsync();
+            return _mapper.Map<IEnumerable<GetAllServiceDTO>>(services);
         }
+
 
         public async Task AddServiceAsync(AddServiceDTO dto)
         {

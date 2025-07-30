@@ -8,11 +8,11 @@ namespace sakenny.API.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Service,AddServiceDTO>()
-                .ReverseMap();
+            CreateMap<Service,AddServiceDTO>().ReverseMap();
             CreateMap<Service, UpdateServiceDTO>().ReverseMap();
-            CreateMap<Service, DeleteServiceDTO>()
-                .ReverseMap();
+            CreateMap<Service, GetAllServiceDTO>();
+
+
             CreateMap<Property, PropertyCheckoutDTO>()
                 .ForMember(dest => dest.MainImageURL,
                            opt => opt.MapFrom(src => src.MainImage.Url))
