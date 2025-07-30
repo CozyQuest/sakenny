@@ -26,11 +26,11 @@ namespace sakenny.Application.DTO
 
         [Required]
         public string District { get; set; }
-        [Required, Range(0, double.MaxValue, ErrorMessage = "Building number must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "Building number must be a positive number.")]
         public int BuildingNo { get; set; }
-        [Required, Range(0, double.MaxValue, ErrorMessage = "Level must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "Level must be a positive number.")]
         public int Level { get; set; }
-        [Required, Range(0, double.MaxValue, ErrorMessage = "Flat number must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "Flat number must be a positive number.")]
         public int FlatNo { get; set; }
 
         [Required]
@@ -39,24 +39,24 @@ namespace sakenny.Application.DTO
         [Required]
         public decimal Latitude { get; set; }
 
-        [Required, Range(0, double.MaxValue, ErrorMessage = "RoomCount must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "RoomCount must be a positive number.")]
         public int RoomCount { get; set; }
 
-        [Required, Range(0, double.MaxValue, ErrorMessage = "BathroomCount must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "BathroomCount must be a positive number.")]
         public int BathroomCount { get; set; }
 
-        [Required, Range(0, double.MaxValue, ErrorMessage = "Area must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "Area must be a positive number.")]
         public double Space { get; set; }
 
-        [Required, Range(0, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "Price must be a positive number.")]
         public decimal Price { get; set; }
 
-        [Required, Range(0, double.MaxValue, ErrorMessage = "PeopleCapacity must be a positive number.")]
+        [Required, Range(1, double.MaxValue, ErrorMessage = "PeopleCapacity must be a positive number.")]
         public int PeopleCapacity { get; set; }
-
         [Required]
-        public string MainImageUrl { get; set; }
-        [FromForm(Name = "file")]
+        [FromForm(Name = "mainImage")]
+        public IFormFile MainImage { get; set; }
+        [FromForm(Name = "images")]
         public List<IFormFile> Images { get; set; }
     }
 }
