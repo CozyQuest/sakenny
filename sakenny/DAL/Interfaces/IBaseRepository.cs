@@ -10,6 +10,6 @@ namespace sakenny.DAL.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             params Expression<Func<T, object>>[] includes
             );
-        Task AddAsync(T entity);
+        Task<T> AddAsync(T entity);
     }
 }

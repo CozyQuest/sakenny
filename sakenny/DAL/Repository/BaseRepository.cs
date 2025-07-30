@@ -13,13 +13,14 @@ namespace sakenny.DAL.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            await _context.Set<T>().AddAsync(entity);
+            var Entry = await _context.Set<T>().AddAsync(entity);
+            return Entry.Entity;
         }
 
         public async Task<IEnumerable<T?>> GetAllAsync(
