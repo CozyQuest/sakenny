@@ -16,7 +16,7 @@ namespace sakenny.Application.Services
         }
         public async Task<PropertyCheckoutDTO> getPropertyByIdAsync(int id)
         {
-            var property = await _unitOfWork.Properties.GetByIdAsync(id, p => p.MainImage, p => p.Rentings);
+            var property = await _unitOfWork.Properties.GetByIdAsync(id, p => p.MainImageUrl, p => p.Rentings);
             if (property == null)
             {
                 throw new KeyNotFoundException($"Property with ID {id} was not found.");
