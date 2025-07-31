@@ -24,11 +24,11 @@ namespace sakenny.DAL.Models
         public string UserId { get; set; }
         public int? MainImageId { get; set; }
         public virtual User User { get; set; }
-        public virtual ICollection<Service> Services { get; set; }
+        public virtual ICollection<Service> Services { get; set; } = new HashSet<Service>();
         public virtual Image MainImage { get; set; }
-        public virtual ICollection<Image> ?Images { get; set; }
-        public virtual ICollection<Review> ?Reviews { get; set; }
-        public virtual ICollection<Renting> ?Rentings { get; set; }
+        public virtual ICollection<Image>? Images { get; set; } = new HashSet<Image>();
+        public virtual ICollection<Review> ?Reviews { get; set; } = new HashSet<Review>();
+        public virtual ICollection<Renting> ?Rentings { get; set; } = new HashSet<Renting>();
         public virtual PropertyType PropertyType { get; set; }
         public virtual HashSet<PropertyPermit> PropertyPermits { get; set; } = new HashSet<PropertyPermit>();
     }
