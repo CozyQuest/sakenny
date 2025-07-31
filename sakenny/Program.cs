@@ -144,14 +144,6 @@ namespace sakenny
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 await AssignRoles(roleManager);
             }
-            using (var scope = app.Services.CreateScope())
-            {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                await AssignRoles(roleManager);
-
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-                await SeedLocationDataAsync(dbContext);
-            }
 
             app.Run();
         }
@@ -170,60 +162,7 @@ namespace sakenny
             return true;
         }
 
-        private static async Task SeedLocationDataAsync(ApplicationDBContext dbContext)
-        {
-            if (!dbContext.Properties.Any())
-            {
-                var properties = new List<Property>
-        {
-            new Property
-            {
-                Title = "Apartment in Alexandria",
-                Description = "Nice place near the sea.",
-                Country = "Egypt",
-                City = "Alexandria",
-                District = "Sidi Gaber",
-                PropertyTypeId = 1, // make sure this exists
-                BuildingNo = 10,
-                RoomCount = 2,
-                BathroomCount = 1,
-                Space = 80.0,
-                Price = 1500,
-                PeopleCapacity = 4,
-                Longitude = 29.9187m,
-                Latitude = 31.2001m,
-                UserId = "dummy-user-id" // replace with an existing User ID
-            },
-            new Property
-            {
-                Title = "Flat in Cairo",
-                Description = "In the heart of Nasr City.",
-                Country = "Egypt",
-                City = "Cairo",
-                District = "Nasr City",
-                PropertyTypeId = 1,
-                BuildingNo = 55,
-                RoomCount = 3,
-                BathroomCount = 2,
-                Space = 120.0,
-                Price = 3000,
-                PeopleCapacity = 6,
-                Longitude = 31.3672m,
-                Latitude = 30.0444m,
-                UserId = "dummy-user-id"
-            }
-        };
-
-                dbContext.Properties.AddRange(properties);
-                await dbContext.SaveChangesAsync();
-
-                Console.WriteLine("? Seeded location-based properties.");
-            }
-            else
-            {
-                Console.WriteLine("?? Location data already exists � skipping seeding.");
-            }
-        }
+      
 
     }
 }
