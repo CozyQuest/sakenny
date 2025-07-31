@@ -61,6 +61,7 @@ namespace sakenny.API.Mapping
                 .ForMember(dest => dest.Property, opt => opt.Ignore())
                 .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.MainImageUrl));
 
+
         }
     }
 }

@@ -37,5 +37,7 @@ namespace sakenny.API.Controllers
             }
             return BadRequest("Can't add property");
         }
+
+
     }
 }
