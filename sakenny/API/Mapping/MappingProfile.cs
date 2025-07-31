@@ -19,7 +19,7 @@ namespace sakenny.API.Mapping
 
 
             CreateMap<Property, PropertyCheckoutDTO>()
-                .ForMember(dest => dest.MainImage,
+                .ForMember(dest => dest.MainImageURL,
                            opt => opt.MapFrom(src => src.MainImage.Url))
                 .ForMember(dest => dest.RentedDates,
                            opt => opt.MapFrom(src =>
