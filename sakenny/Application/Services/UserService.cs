@@ -107,6 +107,24 @@ namespace sakenny.Services
             }
             return (null, null);
         }
+
+        public async Task<UserProfileDTO> GetUserPrivateProfileAsync(string userId)
+        {
+            var user =  await _unitOfWork.userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("User not found.");
+
+            return _mapper.Map<UserProfileDTO>(user);
+        }
+
+        public async Task<UserPublicProfileDTO> GetUserPublicProfileAsync(string userId)
+        {
+            var user = await _unitOfWork.userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("User not found.");
+
+            return _mapper.Map<UserPublicProfileDTO>(user);
+        }
         
 
     }

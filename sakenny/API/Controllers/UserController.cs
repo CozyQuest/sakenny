@@ -108,5 +108,46 @@ namespace sakenny.API.Controllers
             return File(content, contentType ?? "application/octet-stream");
         }
 
+        [Authorize(Roles = "User")]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetPrivateProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized();
+
+            try
+            {
+                var profile = await _userService.GetUserPrivateProfileAsync(userId);
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("profile/{id}")]
+        public async Task<IActionResult> GetPublicProfile(string id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                if (userId != null && userId == id)
+                {
+                    var fullProfile = await _userService.GetUserPrivateProfileAsync(id);
+                    return Ok(fullProfile);
+                }
+
+                var profile = await _userService.GetUserPublicProfileAsync(id);
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
     }
 }

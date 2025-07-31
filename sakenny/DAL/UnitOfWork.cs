@@ -14,6 +14,7 @@ namespace sakenny.DAL
         public IDeleteUpdate<Review> Reviews { get; private set; }
         public IDeleteUpdate<Service> Services { get; private set; }
         public IDeleteUpdate<PropertyType> PropertyTypes { get; private set; }
+        public IDeleteUpdate<PropertySnapshot> PropertySnapshots { get; private set; }
 
         public UserManager<IdentityUser> userManager { get; private set; }
         public RoleManager<IdentityRole> roleManager { get; private set; }
@@ -21,7 +22,8 @@ namespace sakenny.DAL
         public UnitOfWork(ApplicationDBContext context, IBaseRepository<Renting> rentings,
             IBaseRepository<PropertyPermit> propertyPermits, IDeleteUpdate<Property> properties,
             IDeleteUpdate<Image> images, IDeleteUpdate<Review> reviews, IDeleteUpdate<Service> services,
-            IDeleteUpdate<PropertyType> propertyTypes,RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+            IDeleteUpdate<PropertyType> propertyTypes, RoleManager<IdentityRole> roleManager,
+             UserManager<IdentityUser> userManager, IDeleteUpdate<PropertySnapshot> propertySnapshots)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             Rentings = rentings;
@@ -30,6 +32,7 @@ namespace sakenny.DAL
             Images = images;
             Reviews = reviews;
             Services = services;
+            PropertySnapshots = propertySnapshots;
             PropertyTypes = propertyTypes;
             this.roleManager = roleManager;
             this.userManager = userManager;

@@ -19,6 +19,7 @@ namespace sakenny.DAL
         public DbSet<Service> Services { get; set; }
         public DbSet<PropertyType> PropertyTypes { get; set; }
         public DbSet<PropertyPermit> PropertyPermits { get; set; }
+        public DbSet<PropertySnapshot> propertySnapshots { get; set; }
         public DbSet<DummyTable> DummyTables { get; set; }
         //public DbSet<Admin> Admins { get; set; }
         //public DbSet<User> Users { get; set; }
