@@ -11,6 +11,8 @@ using sakenny.DAL.Interfaces;
 using sakenny.DAL.Repository;
 using sakenny.ServiceExtensions;
 using sakenny.Services;
+using sakenny.Models;
+using Stripe;
 
 namespace sakenny
 {
@@ -34,7 +36,7 @@ namespace sakenny
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<LoginService>();
-            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+            builder.Services.AddScoped<ICheckoutService, sakenny.Application.Services.CheckoutService>();
 
             builder.Services.AddCors(options =>
             {
@@ -114,6 +116,10 @@ namespace sakenny
             builder.Services.AddScoped<IImageService, ImageService>();
 
             builder.Services.AddScoped<AdminService>();
+            //Stripe configuration
+            //Retrieve the Stripe API keys from appsettings.json
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
             var app = builder.Build();
 
