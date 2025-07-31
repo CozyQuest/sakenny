@@ -18,6 +18,16 @@ namespace sakenny.API.Mapping
             CreateMap<PropertyType, GetAllTypeDTO>();
 
 
+            CreateMap<User, UserProfileDTO>()
+            .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+            .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+            .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
+
+           CreateMap<User, UserPublicProfileDTO>()
+            .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+            .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+            .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
+                
             CreateMap<Property, PropertyCheckoutDTO>()
                 .ForMember(dest => dest.MainImageURL,
                            opt => opt.MapFrom(src => src.MainImage.Url))
