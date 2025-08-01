@@ -72,6 +72,23 @@ namespace sakenny.API.Controllers
             }
         }
 
-
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> ViewProperty(int id)
+        {
+            try
+            {
+                var property = await _propertyService.GetPropertyDetailsAsync(id);
+                return Ok(property);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+        }
     }
 }

@@ -179,6 +179,20 @@ namespace sakenny.Application.Services
             return _mapper.Map<PropertyDTO>(property);
         }
 
-       
+        public async Task<PropertyDTO> GetPropertyDetailsAsync(int id)
+        {
+            var includes = new Expression<Func<Property, object>>[]
+            {
+               p => p.Images,
+               p => p.PropertyType
+            };
+
+            var property = await _unitOfWork.Properties.GetByIdAsync(id, includes);
+            if (property == null || property.IsDeleted)
+                throw new KeyNotFoundException("Property not found.");
+
+            return _mapper.Map<PropertyDTO>(property);
+        }
+
     }
-    }
+}
