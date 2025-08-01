@@ -650,13 +650,13 @@ namespace sakenny.Migrations
             modelBuilder.Entity("sakenny.Models.PropertyPermit", b =>
                 {
                     b.HasOne("sakenny.Models.Admin", "Admin")
-                        .WithMany("PropertyPermits")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("AdminID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("sakenny.Models.Property", "Property")
-                        .WithMany("PropertyPermits")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("PropertyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -708,7 +708,7 @@ namespace sakenny.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
 
                     b.Navigation("Rentings");
 
@@ -722,7 +722,7 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.Models.Admin", b =>
                 {
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
                 });
 
             modelBuilder.Entity("sakenny.Models.User", b =>

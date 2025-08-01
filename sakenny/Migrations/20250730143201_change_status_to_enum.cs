@@ -17,7 +17,7 @@ namespace sakenny.Migrations
 
             migrationBuilder.AlterColumn<int>(
                 name: "status",
-                table: "PropertyPermits",
+                table: "PropertyPermit",
                 type: "int",
                 nullable: false,
                 oldClrType: typeof(bool),
@@ -42,7 +42,7 @@ namespace sakenny.Migrations
 
             migrationBuilder.AlterColumn<bool>(
                 name: "status",
-                table: "PropertyPermits",
+                table: "PropertyPermit",
                 type: "bit",
                 nullable: false,
                 oldClrType: typeof(int),

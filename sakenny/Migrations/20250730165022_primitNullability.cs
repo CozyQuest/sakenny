@@ -12,7 +12,7 @@ namespace sakenny.Migrations
         {
             migrationBuilder.AlterColumn<string>(
                 name: "AdminID",
-                table: "PropertyPermits",
+                table: "PropertyPermit",
                 type: "nvarchar(450)",
                 nullable: true,
                 oldClrType: typeof(string),
@@ -24,7 +24,7 @@ namespace sakenny.Migrations
         {
             migrationBuilder.AlterColumn<string>(
                 name: "AdminID",
-                table: "PropertyPermits",
+                table: "PropertyPermit",
                 type: "nvarchar(450)",
                 nullable: false,
                 defaultValue: "",

@@ -12,12 +12,12 @@ namespace sakenny.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_PropertyPermits_AspNetUsers_AdminID",
-                table: "PropertyPermits");
+                name: "FK_PropertyPermit_AspNetUsers_AdminID",
+                table: "PropertyPermit");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_PropertyPermits_Properties_PropertyID",
-                table: "PropertyPermits");
+                name: "FK_PropertyPermit_Properties_PropertyID",
+                table: "PropertyPermit");
 
             migrationBuilder.AddColumn<bool>(
                 name: "status",
@@ -75,9 +75,9 @@ namespace sakenny.Migrations
                         principalTable: "Properties",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_propertySnapshots_PropertyPermits_PropertyPermitId",
+                        name: "FK_propertySnapshots_PropertyPermit_PropertyPermitId",
                         column: x => x.PropertyPermitId,
-                        principalTable: "PropertyPermits",
+                        principalTable: "PropertyPermit",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -144,15 +144,15 @@ namespace sakenny.Migrations
                 column: "ServicesId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_PropertyPermits_AspNetUsers_AdminID",
-                table: "PropertyPermits",
+                name: "FK_PropertyPermit_AspNetUsers_AdminID",
+                table: "PropertyPermit",
                 column: "AdminID",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_PropertyPermits_Properties_PropertyID",
-                table: "PropertyPermits",
+                name: "FK_PropertyPermit_Properties_PropertyID",
+                table: "PropertyPermit",
                 column: "PropertyID",
                 principalTable: "Properties",
                 principalColumn: "Id");
@@ -162,12 +162,12 @@ namespace sakenny.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_PropertyPermits_AspNetUsers_AdminID",
-                table: "PropertyPermits");
+                name: "FK_PropertyPermit_AspNetUsers_AdminID",
+                table: "PropertyPermit");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_PropertyPermits_Properties_PropertyID",
-                table: "PropertyPermits");
+                name: "FK_PropertyPermit_Properties_PropertyID",
+                table: "PropertyPermit");
 
             migrationBuilder.DropTable(
                 name: "PropertySnapshotService");
@@ -180,16 +180,16 @@ namespace sakenny.Migrations
                 table: "Properties");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_PropertyPermits_AspNetUsers_AdminID",
-                table: "PropertyPermits",
+                name: "FK_PropertyPermit_AspNetUsers_AdminID",
+                table: "PropertyPermit",
                 column: "AdminID",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_PropertyPermits_Properties_PropertyID",
-                table: "PropertyPermits",
+                name: "FK_PropertyPermit_Properties_PropertyID",
+                table: "PropertyPermit",
                 column: "PropertyID",
                 principalTable: "Properties",
                 principalColumn: "Id",

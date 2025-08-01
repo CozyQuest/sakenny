@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -47,7 +48,7 @@ namespace sakenny.Application.Services
                         Property = property
                     }
                 };
-                
+
                 foreach (var imageUrl in imagesUrl)
                 {
                     images.Add(new Image
@@ -100,5 +101,84 @@ namespace sakenny.Application.Services
             }
         }
 
+        public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
+        {
+            var property = await _unitOfWork.Properties.GetByIdAsync(id);
+            if (property == null || property.IsDeleted)
+                throw new KeyNotFoundException("Property not found.");
+
+            if (property.UserId != userId)
+                throw new UnauthorizedAccessException("You do not have permission to update this property.");
+
+            var existingMainImageUrl = property.MainImageUrl;
+
+            // Map updated fields from DTO to the property entity
+            _mapper.Map(model, property);
+
+            // Handle main image upload
+            if (model.MainImage != null)
+            {
+                var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
+                property.MainImageUrl = newMainImageUrl;
+
+                await _unitOfWork.Images.AddAsync(new Image
+                {
+                    Url = newMainImageUrl,
+                    PropertyId = property.Id
+                });
+            }
+            else
+            {
+                property.MainImageUrl = existingMainImageUrl; // preserve old one
+            }
+
+            // Handle additional image uploads
+            if (model.Images != null && model.Images.Any())
+            {
+                var imageUrls = await _imageService.UploadImagesAsync(model.Images);
+
+                foreach (var imageUrl in imageUrls)
+                {
+                    var imageEntity = new Image
+                    {
+                        Url = imageUrl,
+                        PropertyId = property.Id
+                    };
+                    property.Images ??= new List<Image>();
+                    property.Images.Add(imageEntity);
+                    await _unitOfWork.Images.AddAsync(imageEntity);
+                }
+            }
+
+            // Create a new snapshot of the property
+            var snapshot = _mapper.Map<PropertySnapshot>(property);
+            snapshot.PropertyId = property.Id;
+            snapshot.CreatedAt = DateTime.UtcNow;
+
+            // Create a new property permit to record the update
+            var permit = new PropertyPermit
+            {
+                PropertyID = property.Id,
+                PropertySnapshot = snapshot
+            };
+
+            var images = await _unitOfWork.Images.GetAllAsync(img => img.PropertyId == property.Id);
+            property.Images = images.ToList();
+
+
+            snapshot.PropertyPermit = permit;
+
+            property.PropertySnapshots.Add(snapshot);
+            property.PropertyPermits.Add(permit);
+
+            await _unitOfWork.PropertySnapshots.AddAsync(snapshot);
+            await _unitOfWork.PropertyPermits.AddAsync(permit);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<PropertyDTO>(property);
+        }
+
+       
     }
-}
+    }

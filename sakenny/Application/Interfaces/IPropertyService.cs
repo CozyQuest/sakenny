@@ -9,5 +9,8 @@ namespace sakenny.Application.Interfaces
     public interface IPropertyService
     {
         Task<PropertyDTO> AddPropertyAsync(AddPropertyDTO model, string Id);
+        Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId);
+
+
     }
 }

@@ -420,7 +420,7 @@ namespace sakenny.Migrations
 
                     b.HasIndex("PropertyID");
 
-                    b.ToTable("PropertyPermits");
+                    b.ToTable("PropertyPermit");
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
@@ -797,12 +797,12 @@ namespace sakenny.Migrations
             modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.HasOne("sakenny.DAL.Models.Admin", "Admin")
-                        .WithMany("PropertyPermits")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("AdminID")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("sakenny.DAL.Models.Property", "Property")
-                        .WithMany("PropertyPermits")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("PropertyID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -887,7 +887,7 @@ namespace sakenny.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
 
                     b.Navigation("PropertySnapshots");
 
@@ -909,7 +909,7 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.DAL.Models.Admin", b =>
                 {
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.User", b =>
