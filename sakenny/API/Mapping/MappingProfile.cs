@@ -72,6 +72,10 @@ namespace sakenny.API.Mapping
                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
 
+            CreateMap<PostReviewDTO, Review>();
+
+
+
 
         }
     }

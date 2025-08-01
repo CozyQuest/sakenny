@@ -35,6 +35,7 @@ namespace sakenny
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             builder.Services.AddCors(options =>
             {
