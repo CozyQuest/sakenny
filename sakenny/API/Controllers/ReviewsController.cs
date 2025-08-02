@@ -20,8 +20,42 @@ namespace sakenny.API.Controllers
 
 
         [HttpPost]
+        [Route("/PostRating/{propertyId}")]
+        public async Task<IActionResult> PostRating(int propertyId, [FromBody] PostRatingDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                    return Unauthorized("You must log in first to post a rating.");
+
+                if (dto == null)
+                    return BadRequest("Rating data is required.");
+
+                await _reviewService.AddOrUpdateRatingAsync(propertyId, dto, userId);
+
+                return Ok("Rating submitted successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
         [Route("/PostReview/{propertyId}")]
-        public async Task<IActionResult> Post(int propertyId, [FromBody] PostReviewDTO review)
+        public async Task<IActionResult> PostReview(int propertyId, [FromBody] PostReviewDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -32,24 +66,28 @@ namespace sakenny.API.Controllers
                 if (userId == null)
                     return Unauthorized("You must log in first to post a review.");
 
-                if (review == null)
-                    return BadRequest("Review cannot be null.");
+                if (dto == null)
+                    return BadRequest("Review data is required.");
 
-                await _reviewService.AddReviewAsync(propertyId, review, userId);
+                await _reviewService.AddReviewAsync(propertyId, dto, userId);
 
                 return Ok("Review submitted successfully.");
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(ex.Message); 
+                return Conflict(ex.Message);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Unexpected error: {ex.Message}. Inner: {ex.InnerException?.Message}");
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
             }
         }
 

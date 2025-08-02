@@ -112,10 +112,8 @@ namespace sakenny.Application.Services
 
             var existingMainImageUrl = property.MainImageUrl;
 
-            // Map updated fields from DTO to the property entity
             _mapper.Map(model, property);
 
-            // Handle main image upload
             if (model.MainImage != null)
             {
                 var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
@@ -129,10 +127,9 @@ namespace sakenny.Application.Services
             }
             else
             {
-                property.MainImageUrl = existingMainImageUrl; // preserve old one
+                property.MainImageUrl = existingMainImageUrl; 
             }
 
-            // Handle additional image uploads
             if (model.Images != null && model.Images.Any())
             {
                 var imageUrls = await _imageService.UploadImagesAsync(model.Images);
@@ -150,12 +147,10 @@ namespace sakenny.Application.Services
                 }
             }
 
-            // Create a new snapshot of the property
             var snapshot = _mapper.Map<PropertySnapshot>(property);
             snapshot.PropertyId = property.Id;
             snapshot.CreatedAt = DateTime.UtcNow;
 
-            // Create a new property permit to record the update
             var permit = new PropertyPermit
             {
                 PropertyID = property.Id,
