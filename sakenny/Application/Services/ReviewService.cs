@@ -108,9 +108,12 @@ namespace sakenny.Application.Services
                 throw new KeyNotFoundException("Property not found.");
 
             var reviews = await _unitOfWork.Reviews.GetAllAsync(
-                r => r.PropertyId == propertyId && !r.IsDeleted,
+                r => r.PropertyId == propertyId
+                     && !r.IsDeleted
+                     && !string.IsNullOrWhiteSpace(r.ReviewText)
+                     && r.Rate >= 1 && r.Rate <= 5,
                 orderBy: q => q.OrderByDescending(r => r.CreatedAt),
-                r => r.User
+                r => r.User 
             );
 
             return reviews.Select(r => new ReviewDTO
@@ -121,6 +124,23 @@ namespace sakenny.Application.Services
                 UserFullName = $"{r.User.FirstName} {r.User.LastName}",
                 UserProfilePicUrl = r.User.UrlProfilePicture
             }).ToList();
+        }
+
+        public async Task<int> GetAverageRatingForPropertyAsync(int propertyId)
+        {
+            var property = await _unitOfWork.Properties.GetByIdAsync(propertyId);
+            if (property == null || property.IsDeleted)
+                throw new KeyNotFoundException("Property not found.");
+
+            var ratings = await _unitOfWork.Reviews.GetAllAsync(r =>
+                r.PropertyId == propertyId && !r.IsDeleted && r.Rate > 0);
+
+            if (!ratings.Any())
+                return 0;
+
+            double average = ratings.Average(r => r.Rate);
+            int roundedAverage = (int)Math.Round(average, MidpointRounding.AwayFromZero);
+            return roundedAverage;
         }
     }
 

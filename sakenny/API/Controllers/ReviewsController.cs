@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using sakenny.Application.DTO;
 using sakenny.Application.Interfaces;
+using sakenny.Application.Services;
 using sakenny.DAL.Models;
 using System.Security.Claims;
 
@@ -108,6 +109,14 @@ namespace sakenny.API.Controllers
                 return StatusCode(500, "An error occurred while fetching reviews.");
             }
         }
+
+        [HttpGet("/average-rating/{propertyId}")]
+        public async Task<IActionResult> GetAverageRating(int propertyId)
+        {
+            int avg = await _reviewService.GetAverageRatingForPropertyAsync(propertyId);
+            return Ok(new { averageRating = avg });
+        }
+
 
 
     }
