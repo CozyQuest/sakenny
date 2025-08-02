@@ -13,6 +13,5 @@ namespace sakenny.Application.Interfaces
         Task<IEnumerable<MapMarkerDTO>> GetMapMarkersAsync();
         Task<IEnumerable<TopPropertyDTO>> GetTopPropertiesAsync();
         Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync();
-
     }
 }
