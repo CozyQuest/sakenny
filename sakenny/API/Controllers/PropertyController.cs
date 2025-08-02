@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
 using sakenny.Application.Interfaces;
 
@@ -9,6 +10,8 @@ namespace sakenny.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Host,User")]
+
     public class PropertyController : ControllerBase
     {
         private readonly IPropertyService _propertyService;
@@ -36,6 +39,58 @@ namespace sakenny.API.Controllers
                 }
             }
             return BadRequest("Can't add property");
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "Host")]
+        [Route("/UpdateProperty/{id}")]
+        public async Task<IActionResult> UpdateProperty(int id, [FromForm] UpdatePropertyDTO model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var updatedProperty = await _propertyService.UpdatePropertyAsync(id, model, userId);
+                return Ok(updatedProperty);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"DB update error: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> ViewProperty(int id)
+        {
+            try
+            {
+                var property = await _propertyService.GetPropertyDetailsAsync(id);
+                return Ok(property);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
         }
     }
 }
