@@ -10,6 +10,8 @@ namespace sakenny.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Host,User")]
+
     public class PropertyController : ControllerBase
     {
         private readonly IPropertyService _propertyService;
