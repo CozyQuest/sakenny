@@ -53,6 +53,24 @@ namespace sakenny.API.Controllers
             }
         }
 
+        [HttpGet("{propertyId}")]
+        public async Task<ActionResult<IEnumerable<ReviewDTO>>> GetReviewsForProperty(int propertyId)
+        {
+            try
+            {
+                var result = await _reviewService.GetReviewsForPropertyAsync(propertyId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while fetching reviews.");
+            }
+        }
+
 
     }
 }

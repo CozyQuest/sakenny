@@ -46,7 +46,29 @@ namespace sakenny.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-     
+        public async Task<IEnumerable<ReviewDTO>> GetReviewsForPropertyAsync(int propertyId)
+        {
+            // Validate property existence (you may already apply global filters)
+            var property = await _unitOfWork.Properties.GetByIdAsync(propertyId);
+            if (property == null || property.IsDeleted)
+                throw new KeyNotFoundException("Property not found.");
+
+            // Use BaseRepository's GetAllAsync (with filter + includes)
+            var reviews = await _unitOfWork.Reviews.GetAllAsync(
+                r => r.PropertyId == propertyId && !r.IsDeleted,
+                orderBy: q => q.OrderByDescending(r => r.CreatedAt),
+                r => r.User
+            );
+
+            return reviews.Select(r => new ReviewDTO
+            {
+                ReviewText = r.ReviewText,
+                Rate = r.Rate,
+                CreatedAt = r.CreatedAt,
+                UserFullName = $"{r.User.FirstName} {r.User.LastName}",
+                UserProfilePicUrl = r.User.UrlProfilePicture
+            }).ToList();
+        }
 
     }
 }
