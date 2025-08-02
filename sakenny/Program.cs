@@ -8,9 +8,12 @@ using sakenny.Application.Interfaces;
 using sakenny.Application.Services;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
+using sakenny.DAL.Models;
 using sakenny.DAL.Repository;
 using sakenny.ServiceExtensions;
 using sakenny.Services;
+using sakenny.Models;
+using Stripe;
 
 namespace sakenny
 {
@@ -28,13 +31,15 @@ namespace sakenny
 
             builder.Services.AddScoped<IPropertyServicesService, PropertyServicesService>();
             builder.Services.AddScoped<IPropertyTypeService, PropertyTypeService>();
+            builder.Services.AddScoped<ILocationService, LocationService>();
             builder.Services.AddScoped<IPropertyService, PropertyService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<LoginService>();
-            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+            builder.Services.AddScoped<ICheckoutService, sakenny.Application.Services.CheckoutService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             builder.Services.AddCors(options =>
             {
@@ -114,6 +119,10 @@ namespace sakenny
             builder.Services.AddScoped<IImageService, ImageService>();
 
             builder.Services.AddScoped<AdminService>();
+            //Stripe configuration
+            //Retrieve the Stripe API keys from appsettings.json
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
             var app = builder.Build();
 
@@ -136,6 +145,7 @@ namespace sakenny
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 await AssignRoles(roleManager);
             }
+
             app.Run();
         }
 
@@ -152,5 +162,8 @@ namespace sakenny
 
             return true;
         }
+
+      
+
     }
 }

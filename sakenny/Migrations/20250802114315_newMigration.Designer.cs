@@ -12,8 +12,8 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250726130537_UpdatedSchema")]
-    partial class UpdatedSchema
+    [Migration("20250802114315_newMigration")]
+    partial class newMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -247,7 +247,22 @@ namespace sakenny.Migrations
                     b.ToTable("PropertyServices", (string)null);
                 });
 
-            modelBuilder.Entity("sakenny.Models.DummyTable", b =>
+            modelBuilder.Entity("PropertySnapshotService", b =>
+                {
+                    b.Property<int>("PropertySnapshotsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServicesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PropertySnapshotsId", "ServicesId");
+
+                    b.HasIndex("ServicesId");
+
+                    b.ToTable("PropertySnapshotService");
+                });
+
+            modelBuilder.Entity("sakenny.DAL.Models.DummyTable", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -270,7 +285,7 @@ namespace sakenny.Migrations
                     b.ToTable("DummyTables");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Image", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -295,7 +310,7 @@ namespace sakenny.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Property", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Property", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -341,8 +356,10 @@ namespace sakenny.Migrations
                     b.Property<decimal>("Longitude")
                         .HasColumnType("decimal(18,10)");
 
-                    b.Property<int>("MainImageId")
-                        .HasColumnType("int");
+                    b.Property<string>("MainImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("PeopleCapacity")
                         .HasColumnType("int");
@@ -359,6 +376,9 @@ namespace sakenny.Migrations
                     b.Property<double>("Space")
                         .HasColumnType("float");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -370,9 +390,6 @@ namespace sakenny.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MainImageId")
-                        .IsUnique();
-
                     b.HasIndex("PropertyTypeId");
 
                     b.HasIndex("UserId");
@@ -380,7 +397,7 @@ namespace sakenny.Migrations
                     b.ToTable("Properties");
                 });
 
-            modelBuilder.Entity("sakenny.Models.PropertyPermit", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -389,14 +406,13 @@ namespace sakenny.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<string>("AdminID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("PropertyID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("status")
-                        .HasColumnType("bit");
+                    b.Property<int>("status")
+                        .HasColumnType("int");
 
                     b.HasKey("id");
 
@@ -407,7 +423,102 @@ namespace sakenny.Migrations
                     b.ToTable("PropertyPermit");
                 });
 
-            modelBuilder.Entity("sakenny.Models.PropertyType", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BathroomCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BuildingNo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("FlatNo")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MainImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PeopleCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PropertyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PropertyPermitId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PropertyTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Space")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("PropertyPermitId")
+                        .IsUnique();
+
+                    b.HasIndex("PropertyTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("propertySnapshots");
+                });
+
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -427,7 +538,7 @@ namespace sakenny.Migrations
                     b.ToTable("PropertyTypes");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Renting", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Renting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -437,9 +548,6 @@ namespace sakenny.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<int>("PropertyId")
                         .HasColumnType("int");
@@ -466,7 +574,7 @@ namespace sakenny.Migrations
                     b.ToTable("Rentings");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Review", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -506,7 +614,7 @@ namespace sakenny.Migrations
                         });
                 });
 
-            modelBuilder.Entity("sakenny.Models.Service", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Service", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -526,17 +634,9 @@ namespace sakenny.Migrations
                     b.ToTable("Services");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Admin", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Admin", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<string>("FName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UrlProfileImage")
                         .IsRequired()
@@ -545,7 +645,7 @@ namespace sakenny.Migrations
                     b.HasDiscriminator().HasValue("Admin");
                 });
 
-            modelBuilder.Entity("sakenny.Models.User", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
@@ -558,6 +658,12 @@ namespace sakenny.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UrlIdBack")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UrlIdFront")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UrlProfilePicture")
                         .IsRequired()
@@ -619,22 +725,37 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("PropertyService", b =>
                 {
-                    b.HasOne("sakenny.Models.Property", null)
+                    b.HasOne("sakenny.DAL.Models.Property", null)
                         .WithMany()
                         .HasForeignKey("PropertiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("sakenny.Models.Service", null)
+                    b.HasOne("sakenny.DAL.Models.Service", null)
                         .WithMany()
                         .HasForeignKey("ServicesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("sakenny.Models.DummyTable", b =>
+            modelBuilder.Entity("PropertySnapshotService", b =>
                 {
-                    b.HasOne("sakenny.Models.User", "user")
+                    b.HasOne("sakenny.DAL.Models.PropertySnapshot", null)
+                        .WithMany()
+                        .HasForeignKey("PropertySnapshotsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sakenny.DAL.Models.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("sakenny.DAL.Models.DummyTable", b =>
+                {
+                    b.HasOne("sakenny.DAL.Models.User", "user")
                         .WithMany()
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -643,9 +764,9 @@ namespace sakenny.Migrations
                     b.Navigation("user");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Image", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Image", b =>
                 {
-                    b.HasOne("sakenny.Models.Property", "Property")
+                    b.HasOne("sakenny.DAL.Models.Property", "Property")
                         .WithMany("Images")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -654,45 +775,36 @@ namespace sakenny.Migrations
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Property", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Property", b =>
                 {
-                    b.HasOne("sakenny.Models.Image", "MainImage")
-                        .WithOne()
-                        .HasForeignKey("sakenny.Models.Property", "MainImageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("sakenny.Models.PropertyType", "PropertyType")
+                    b.HasOne("sakenny.DAL.Models.PropertyType", "PropertyType")
                         .WithMany("Properties")
                         .HasForeignKey("PropertyTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("sakenny.Models.User", "User")
+                    b.HasOne("sakenny.DAL.Models.User", "User")
                         .WithMany("Properties")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("MainImage");
 
                     b.Navigation("PropertyType");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("sakenny.Models.PropertyPermit", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
-                    b.HasOne("sakenny.Models.Admin", "Admin")
-                        .WithMany("PropertyPermits")
+                    b.HasOne("sakenny.DAL.Models.Admin", "Admin")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("AdminID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("sakenny.Models.Property", "Property")
-                        .WithMany("PropertyPermits")
+                    b.HasOne("sakenny.DAL.Models.Property", "Property")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("PropertyID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Admin");
@@ -700,15 +812,48 @@ namespace sakenny.Migrations
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Renting", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
                 {
-                    b.HasOne("sakenny.Models.Property", "Property")
+                    b.HasOne("sakenny.DAL.Models.Property", "Property")
+                        .WithMany("PropertySnapshots")
+                        .HasForeignKey("PropertyId");
+
+                    b.HasOne("sakenny.DAL.Models.PropertyPermit", "PropertyPermit")
+                        .WithOne("PropertySnapshot")
+                        .HasForeignKey("sakenny.DAL.Models.PropertySnapshot", "PropertyPermitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sakenny.DAL.Models.PropertyType", "PropertyType")
+                        .WithMany()
+                        .HasForeignKey("PropertyTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sakenny.DAL.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+
+                    b.Navigation("PropertyPermit");
+
+                    b.Navigation("PropertyType");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("sakenny.DAL.Models.Renting", b =>
+                {
+                    b.HasOne("sakenny.DAL.Models.Property", "Property")
                         .WithMany("Rentings")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("sakenny.Models.User", "User")
+                    b.HasOne("sakenny.DAL.Models.User", "User")
                         .WithMany("Rentings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -719,15 +864,15 @@ namespace sakenny.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Review", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Review", b =>
                 {
-                    b.HasOne("sakenny.Models.Property", "Property")
+                    b.HasOne("sakenny.DAL.Models.Property", "Property")
                         .WithMany("Reviews")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("sakenny.Models.User", "User")
+                    b.HasOne("sakenny.DAL.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -738,28 +883,36 @@ namespace sakenny.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Property", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Property", b =>
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
+
+                    b.Navigation("PropertySnapshots");
 
                     b.Navigation("Rentings");
 
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("sakenny.Models.PropertyType", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
+                {
+                    b.Navigation("PropertySnapshot")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyType", b =>
                 {
                     b.Navigation("Properties");
                 });
 
-            modelBuilder.Entity("sakenny.Models.Admin", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.Admin", b =>
                 {
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
                 });
 
-            modelBuilder.Entity("sakenny.Models.User", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.User", b =>
                 {
                     b.Navigation("Properties");
 

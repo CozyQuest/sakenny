@@ -8,7 +8,6 @@ namespace sakenny.API.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Service, AddServiceDTO>().ReverseMap();
             CreateMap<Service, AddServiceDTO>()
                 .ReverseMap();
             CreateMap<Service, UpdateServiceDTO>().ReverseMap();
@@ -38,7 +37,13 @@ namespace sakenny.API.Mapping
                                   .SelectMany(r => Enumerable.Range(0, (r.EndDate - r.StartDate).Days + 1)
                                                              .Select(offset => r.StartDate.AddDays(offset)))
                                   .Distinct()
-                                  .ToList()));
+                                  .ToList()))
+                .ForMember(dest => dest.Rating,
+                           opt => opt.MapFrom(src =>
+                               src.Reviews.Any() ? (int)Math.Round(src.Reviews.Average(r => r.Rate)) : 0))
+                .ForMember(dest => dest.RatingCount,
+                           opt => opt.MapFrom(src => src.Reviews.Count));
+
 
             // Add User mapping
             CreateMap<RegistrationDTO, User>()
@@ -60,6 +65,21 @@ namespace sakenny.API.Mapping
                 .ForMember(dest => dest.PropertyPermit, opt => opt.Ignore())
                 .ForMember(dest => dest.Property, opt => opt.Ignore())
                 .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.MainImageUrl));
+
+
+            CreateMap<UpdatePropertyDTO, Property>()
+              .ForMember(dest => dest.MainImageUrl, opt => opt.Ignore())
+              .ForMember(dest => dest.Images, opt => opt.Ignore())
+              .ForAllMembers(opts => opts.Condition((src, dest, srcMember) =>
+                 srcMember != null && srcMember.ToString() != "0"));
+
+            CreateMap<Property, PropertySnapshot>()
+               .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+
+            CreateMap<PostReviewDTO, Review>();
+
+
 
 
         }

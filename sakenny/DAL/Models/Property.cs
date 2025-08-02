@@ -23,12 +23,12 @@ namespace sakenny.DAL.Models
         public PropertyStatus Status { get; set; } = PropertyStatus.Pending;
         public bool IsDeleted { get; set; } = false;
         public string UserId { get; set; }
-        public string MainImageUrl { get; set; }
         public virtual User User { get; set; }
-        public virtual ICollection<Service> Services { get; set; }
-        public virtual ICollection<Image>? Images { get; set; }
-        public virtual ICollection<Review>? Reviews { get; set; }
-        public virtual ICollection<Renting>? Rentings { get; set; }
+        public virtual ICollection<Service> Services { get; set; } = new HashSet<Service>();
+        public virtual String MainImageUrl { get; set; }
+        public virtual ICollection<Image>? Images { get; set; } = new HashSet<Image>();
+        public virtual ICollection<Review> ?Reviews { get; set; } = new HashSet<Review>();
+        public virtual ICollection<Renting> ?Rentings { get; set; } = new HashSet<Renting>();
         public virtual PropertyType PropertyType { get; set; }
         public virtual HashSet<PropertyPermit> PropertyPermits { get; set; } = new HashSet<PropertyPermit>();
         public virtual HashSet<PropertySnapshot> PropertySnapshots { get; set; } = new HashSet<PropertySnapshot>();
