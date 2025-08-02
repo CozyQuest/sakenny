@@ -75,6 +75,7 @@ namespace sakenny.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [Route("{id}")]
         public async Task<IActionResult> ViewProperty(int id)
         {

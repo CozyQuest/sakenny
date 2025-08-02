@@ -9,6 +9,7 @@ using sakenny.Application.DTO;
 using sakenny.Application.Interfaces;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Models;
+using Stripe;
 
 namespace sakenny.Application.Services
 {
@@ -39,6 +40,16 @@ namespace sakenny.Application.Services
                 var property = _mapper.Map<Property>(model);
                 property.UserId = Id;
                 property.MainImageUrl = MainImageUrl; // Set main image URL directly
+
+                if (model.ServiceIds != null && model.ServiceIds.Any())
+                {
+                    foreach (var serviceId in model.ServiceIds)
+                    {
+                        var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
+                        if (service != null)
+                            property.Services.Add(service);
+                    }
+                }
 
                 // Create image entities and set up relationships
                 List<Image> images = new List<Image>
