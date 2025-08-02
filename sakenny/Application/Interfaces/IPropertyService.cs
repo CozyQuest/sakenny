@@ -9,5 +9,6 @@ namespace sakenny.Application.Interfaces
     public interface IPropertyService
     {
         Task<PropertyDTO> AddPropertyAsync(AddPropertyDTO model, string Id);
+        Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filterDto);
     }
 }
