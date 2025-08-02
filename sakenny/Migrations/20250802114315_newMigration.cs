@@ -256,8 +256,7 @@ namespace sakenny.Migrations
                 });
 
             migrationBuilder.CreateTable(
-<<<<<<< HEAD:sakenny/Migrations/20250726102653_WeshAseelMonawar.cs
-=======
+
                 name: "Images",
                 columns: table => new
                 {
@@ -279,7 +278,6 @@ namespace sakenny.Migrations
                 });
 
             migrationBuilder.CreateTable(
->>>>>>> 4dac6854a98bb2be214f1df50dac6307673393c3:sakenny/Migrations/20250802114315_newMigration.cs
                 name: "PropertyPermits",
                 columns: table => new
                 {
@@ -610,14 +608,13 @@ namespace sakenny.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-<<<<<<< HEAD:sakenny/Migrations/20250726102653_WeshAseelMonawar.cs
                 name: "PropertyPermits");
-=======
+
+            migrationBuilder.DropTable(
                 name: "DummyTables");
 
             migrationBuilder.DropTable(
                 name: "Images");
->>>>>>> 4dac6854a98bb2be214f1df50dac6307673393c3:sakenny/Migrations/20250802114315_newMigration.cs
 
             migrationBuilder.DropTable(
                 name: "PropertyServices");

@@ -191,7 +191,7 @@ namespace sakenny.Application.Services
                 {
                     Name = p.Title,
                     Location = $"{p.City}, {p.Country}",
-                    Img = p.MainImage.Url,
+                    Img = p.MainImageUrl,
                     TotalRating = p.Reviews!.Average(r => r.Rate)
                 }).ToList();
         }
@@ -206,7 +206,7 @@ namespace sakenny.Application.Services
 
             return transactions.Take(5).Select(r => new TransactionDTO
             {
-                Img = r.Property?.MainImage.Url ?? "assets/images/property/default.jpg",
+                Img = r.Property?.MainImageUrl ?? "assets/images/property/default.jpg",
                 Date = r.TransactionDate.ToString("dd MMM yyyy"),
                 Name = $"{r.User?.FirstName ?? "Unknown"} {r.User?.LastName}",
                 Price = $"{r.TotalPrice:C0}",
