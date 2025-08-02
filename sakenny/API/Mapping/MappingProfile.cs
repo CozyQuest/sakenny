@@ -8,7 +8,6 @@ namespace sakenny.API.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Service, AddServiceDTO>().ReverseMap();
             CreateMap<Service, AddServiceDTO>()
                 .ReverseMap();
             CreateMap<Service, UpdateServiceDTO>().ReverseMap();
@@ -38,7 +37,13 @@ namespace sakenny.API.Mapping
                                   .SelectMany(r => Enumerable.Range(0, (r.EndDate - r.StartDate).Days + 1)
                                                              .Select(offset => r.StartDate.AddDays(offset)))
                                   .Distinct()
-                                  .ToList()));
+                                  .ToList()))
+                .ForMember(dest => dest.Rating,
+                           opt => opt.MapFrom(src =>
+                               src.Reviews.Any() ? (int)Math.Round(src.Reviews.Average(r => r.Rate)) : 0))
+                .ForMember(dest => dest.RatingCount,
+                           opt => opt.MapFrom(src => src.Reviews.Count));
+
 
             // Add User mapping
             CreateMap<RegistrationDTO, User>()

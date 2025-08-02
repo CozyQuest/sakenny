@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace sakenny.Migrations
 {
     /// <inheritdoc />
-    public partial class WeshAseelMonawar : Migration
+    public partial class newMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,13 +30,13 @@ namespace sakenny.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
-                    FName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserType = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
                     UrlProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     UrlProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UrlIdFront = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UrlIdBack = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -192,18 +192,23 @@ namespace sakenny.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Images",
+                name: "DummyTables",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PropertyId = table.Column<int>(type: "int", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.PrimaryKey("PK_DummyTables", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_DummyTables_AspNetUsers_userId",
+                        column: x => x.userId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -228,9 +233,10 @@ namespace sakenny.Migrations
                     Space = table.Column<double>(type: "float", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PeopleCapacity = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MainImageId = table.Column<int>(type: "int", nullable: false)
+                    MainImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -242,12 +248,6 @@ namespace sakenny.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Properties_Images_MainImageId",
-                        column: x => x.MainImageId,
-                        principalTable: "Images",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Properties_PropertyTypes_PropertyTypeId",
                         column: x => x.PropertyTypeId,
                         principalTable: "PropertyTypes",
@@ -256,30 +256,49 @@ namespace sakenny.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PropertyPermit",
+                name: "Images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Images_Properties_PropertyId",
+                        column: x => x.PropertyId,
+                        principalTable: "Properties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PropertyPermits",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AdminID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AdminID = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     PropertyID = table.Column<int>(type: "int", nullable: false),
-                    status = table.Column<bool>(type: "bit", nullable: false)
+                    status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PropertyPermit", x => x.id);
+                    table.PrimaryKey("PK_PropertyPermits", x => x.id);
                     table.ForeignKey(
-                        name: "FK_PropertyPermit_AspNetUsers_AdminID",
+                        name: "FK_PropertyPermits_AspNetUsers_AdminID",
                         column: x => x.AdminID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_PropertyPermit_Properties_PropertyID",
+                        name: "FK_PropertyPermits_Properties_PropertyID",
                         column: x => x.PropertyID,
                         principalTable: "Properties",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -317,7 +336,6 @@ namespace sakenny.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -368,6 +386,87 @@ namespace sakenny.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "propertySnapshots",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PropertyId = table.Column<int>(type: "int", nullable: true),
+                    PropertyPermitId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PropertyTypeId = table.Column<int>(type: "int", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BuildingNo = table.Column<int>(type: "int", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: true),
+                    FlatNo = table.Column<int>(type: "int", nullable: true),
+                    Longitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Latitude = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RoomCount = table.Column<int>(type: "int", nullable: false),
+                    BathroomCount = table.Column<int>(type: "int", nullable: false),
+                    Space = table.Column<double>(type: "float", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PeopleCapacity = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MainImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_propertySnapshots", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_propertySnapshots_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_propertySnapshots_Properties_PropertyId",
+                        column: x => x.PropertyId,
+                        principalTable: "Properties",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_propertySnapshots_PropertyPermits_PropertyPermitId",
+                        column: x => x.PropertyPermitId,
+                        principalTable: "PropertyPermits",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_propertySnapshots_PropertyTypes_PropertyTypeId",
+                        column: x => x.PropertyTypeId,
+                        principalTable: "PropertyTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PropertySnapshotService",
+                columns: table => new
+                {
+                    PropertySnapshotsId = table.Column<int>(type: "int", nullable: false),
+                    ServicesId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PropertySnapshotService", x => new { x.PropertySnapshotsId, x.ServicesId });
+                    table.ForeignKey(
+                        name: "FK_PropertySnapshotService_Services_ServicesId",
+                        column: x => x.ServicesId,
+                        principalTable: "Services",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PropertySnapshotService_propertySnapshots_PropertySnapshotsId",
+                        column: x => x.PropertySnapshotsId,
+                        principalTable: "propertySnapshots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -408,15 +507,14 @@ namespace sakenny.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DummyTables_userId",
+                table: "DummyTables",
+                column: "userId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Images_PropertyId",
                 table: "Images",
                 column: "PropertyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Properties_MainImageId",
-                table: "Properties",
-                column: "MainImageId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Properties_PropertyTypeId",
@@ -429,18 +527,44 @@ namespace sakenny.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PropertyPermit_AdminID",
-                table: "PropertyPermit",
+                name: "IX_PropertyPermits_AdminID",
+                table: "PropertyPermits",
                 column: "AdminID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PropertyPermit_PropertyID",
-                table: "PropertyPermit",
+                name: "IX_PropertyPermits_PropertyID",
+                table: "PropertyPermits",
                 column: "PropertyID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PropertyServices_ServicesId",
                 table: "PropertyServices",
+                column: "ServicesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_propertySnapshots_PropertyId",
+                table: "propertySnapshots",
+                column: "PropertyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_propertySnapshots_PropertyPermitId",
+                table: "propertySnapshots",
+                column: "PropertyPermitId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_propertySnapshots_PropertyTypeId",
+                table: "propertySnapshots",
+                column: "PropertyTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_propertySnapshots_UserId",
+                table: "propertySnapshots",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PropertySnapshotService_ServicesId",
+                table: "PropertySnapshotService",
                 column: "ServicesId");
 
             migrationBuilder.CreateIndex(
@@ -462,27 +586,11 @@ namespace sakenny.Migrations
                 name: "IX_Reviews_UserId",
                 table: "Reviews",
                 column: "UserId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Images_Properties_PropertyId",
-                table: "Images",
-                column: "PropertyId",
-                principalTable: "Properties",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Properties_AspNetUsers_UserId",
-                table: "Properties");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Images_Properties_PropertyId",
-                table: "Images");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -499,10 +607,16 @@ namespace sakenny.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "PropertyPermit");
+                name: "DummyTables");
+
+            migrationBuilder.DropTable(
+                name: "Images");
 
             migrationBuilder.DropTable(
                 name: "PropertyServices");
+
+            migrationBuilder.DropTable(
+                name: "PropertySnapshotService");
 
             migrationBuilder.DropTable(
                 name: "Rentings");
@@ -517,13 +631,16 @@ namespace sakenny.Migrations
                 name: "Services");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "propertySnapshots");
+
+            migrationBuilder.DropTable(
+                name: "PropertyPermits");
 
             migrationBuilder.DropTable(
                 name: "Properties");
 
             migrationBuilder.DropTable(
-                name: "Images");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "PropertyTypes");
