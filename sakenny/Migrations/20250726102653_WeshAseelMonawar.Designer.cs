@@ -357,7 +357,7 @@ namespace sakenny.Migrations
                     b.ToTable("Properties");
                 });
 
-            modelBuilder.Entity("sakenny.Models.PropertyPermit", b =>
+            modelBuilder.Entity("sakenny.Models.PropertyPermits", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -381,7 +381,7 @@ namespace sakenny.Migrations
 
                     b.HasIndex("PropertyID");
 
-                    b.ToTable("PropertyPermit");
+                    b.ToTable("PropertyPermits");
                 });
 
             modelBuilder.Entity("sakenny.Models.PropertyType", b =>
@@ -647,7 +647,7 @@ namespace sakenny.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("sakenny.Models.PropertyPermit", b =>
+            modelBuilder.Entity("sakenny.Models.PropertyPermits", b =>
                 {
                     b.HasOne("sakenny.Models.Admin", "Admin")
                         .WithMany("PropertyPermits")
