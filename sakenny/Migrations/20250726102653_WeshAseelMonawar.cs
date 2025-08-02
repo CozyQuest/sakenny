@@ -256,7 +256,7 @@ namespace sakenny.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PropertyPermit",
+                name: "PropertyPermits",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -267,15 +267,15 @@ namespace sakenny.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PropertyPermit", x => x.id);
+                    table.PrimaryKey("PK_PropertyPermits", x => x.id);
                     table.ForeignKey(
-                        name: "FK_PropertyPermit_AspNetUsers_AdminID",
+                        name: "FK_PropertyPermits_AspNetUsers_AdminID",
                         column: x => x.AdminID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PropertyPermit_Properties_PropertyID",
+                        name: "FK_PropertyPermits_Properties_PropertyID",
                         column: x => x.PropertyID,
                         principalTable: "Properties",
                         principalColumn: "Id",
@@ -429,13 +429,13 @@ namespace sakenny.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PropertyPermit_AdminID",
-                table: "PropertyPermit",
+                name: "IX_PropertyPermits_AdminID",
+                table: "PropertyPermits",
                 column: "AdminID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PropertyPermit_PropertyID",
-                table: "PropertyPermit",
+                name: "IX_PropertyPermits_PropertyID",
+                table: "PropertyPermits",
                 column: "PropertyID");
 
             migrationBuilder.CreateIndex(
@@ -499,7 +499,7 @@ namespace sakenny.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "PropertyPermit");
+                name: "PropertyPermits");
 
             migrationBuilder.DropTable(
                 name: "PropertyServices");

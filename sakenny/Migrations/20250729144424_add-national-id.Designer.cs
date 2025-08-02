@@ -381,7 +381,7 @@ namespace sakenny.Migrations
                     b.ToTable("Properties");
                 });
 
-            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -678,7 +678,7 @@ namespace sakenny.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
                 {
                     b.HasOne("sakenny.DAL.Models.Admin", "Admin")
                         .WithMany("PropertyPermits")
