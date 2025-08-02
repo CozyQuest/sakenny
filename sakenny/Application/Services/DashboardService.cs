@@ -105,12 +105,33 @@ namespace sakenny.Application.Services
 
             return pending.Select(p => new PendingRequestDTO
             {
+                Id = p.id,
                 Img = p.PropertySnapshot.MainImageUrl,
                 Title = p.PropertySnapshot.Title,
                 Date = p.PropertySnapshot.CreatedAt.ToString("yyyy-MM-dd"),
                 Price = p.PropertySnapshot.Price,
                 Type = p.PropertySnapshot.PropertyType.Name
             }).ToList();
+        }
+
+        public async Task<bool> ApproveRequestAsync(int permitId)
+        {
+            var permit = await _unit.PropertyPermits.GetByIdAsync(permitId);
+            if (permit == null) return false;
+
+            permit.status = PropertyStatus.Approved;
+            await _unit.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> RejectRequestAsync(int permitId)
+        {
+            var permit = await _unit.PropertyPermits.GetByIdAsync(permitId);
+            if (permit == null) return false;
+
+            permit.status = PropertyStatus.Rejected;
+            await _unit.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<SalesBreakdownDTO>> GetSalesBreakdownAsync(string period)

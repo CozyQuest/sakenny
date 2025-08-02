@@ -2,6 +2,7 @@
 {
     public class PendingRequestDTO
     {
+        public int Id { get; set; }
         public string Img { get; set; } = null!;
         public string Title { get; set; } = null!;
         public string Date { get; set; } = null!;

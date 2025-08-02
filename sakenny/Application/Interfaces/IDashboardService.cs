@@ -7,6 +7,8 @@ namespace sakenny.Application.Interfaces
         Task<IEnumerable<StatDTO>> GetStatsAsync();
         Task<RevenueChartDTO> GetRevenueChartAsync(string period);
         Task<IEnumerable<PendingRequestDTO>> GetPendingRequestsAsync();
+        Task<bool> ApproveRequestAsync(int permitId);
+        Task<bool> RejectRequestAsync(int permitId);
         Task<IEnumerable<SalesBreakdownDTO>> GetSalesBreakdownAsync(string period);
         Task<IEnumerable<MapMarkerDTO>> GetMapMarkersAsync();
         Task<IEnumerable<TopPropertyDTO>> GetTopPropertiesAsync();
