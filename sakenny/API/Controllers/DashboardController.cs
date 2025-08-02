@@ -27,6 +27,22 @@ namespace sakenny.API.Controllers
         public async Task<IActionResult> GetPendingRequests() =>
             Ok(await _dashboardService.GetPendingRequestsAsync());
 
+        [HttpPut("pendingrequests/{id}/approve")]
+        public async Task<IActionResult> ApproveRequest(int id)
+        {
+            var result = await _dashboardService.ApproveRequestAsync(id);
+            if (!result) return NotFound("Request not found");
+            return Ok(new { message = "Request approved" });
+        }
+
+        [HttpPut("pendingrequests/{id}/reject")]
+        public async Task<IActionResult> RejectRequest(int id)
+        {
+            var result = await _dashboardService.RejectRequestAsync(id);
+            if (!result) return NotFound("Request not found");
+            return Ok(new { message = "Request rejected" });
+        }
+
         [HttpGet("salesbreakdown")]
         public async Task<IActionResult> GetSalesBreakdown([FromQuery] string period = "Y") =>
             Ok(await _dashboardService.GetSalesBreakdownAsync(period));
