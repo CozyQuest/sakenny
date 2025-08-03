@@ -236,10 +236,14 @@ namespace sakenny.Application.Services
             return top;
         }
 
-        public async Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync()
+        public async Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync(string? hostId = null)
         {
+            var filter = hostId is null
+                ? (Expression<Func<Renting, bool>>)(r => !r.Property.IsDeleted && r.Property.Status == PropertyStatus.Approved)
+                : r => !r.Property.IsDeleted && r.Property.Status == PropertyStatus.Approved && r.Property.UserId == hostId;
+
             var transactions = await _unit.Rentings.GetAllAsync(
-                filter: r => !r.Property.IsDeleted && r.Property.Status == PropertyStatus.Approved,
+                filter: filter,
                 orderBy: q => q.OrderByDescending(r => r.TransactionDate),
                 includes: [r => r.User, r => r.Property, r => r.Property.User]
             );

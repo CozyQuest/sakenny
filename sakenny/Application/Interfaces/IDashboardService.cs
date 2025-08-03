@@ -12,6 +12,6 @@ namespace sakenny.Application.Interfaces
         Task<IEnumerable<SalesBreakdownDTO>> GetSalesBreakdownAsync(string period);
         Task<IEnumerable<MapMarkerDTO>> GetMapMarkersAsync();
         Task<IEnumerable<TopPropertyDTO>> GetTopPropertiesAsync();
-        Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync();
+        Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync(string? hostId = null);
     }
 }
