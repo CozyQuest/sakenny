@@ -20,7 +20,7 @@ namespace sakenny.API.Controllers
             _propertyService = propertyService;
         }
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Host")]
         [Route("/AddProperty")]
         public async Task<IActionResult> AddProperty([FromForm] AddPropertyDTO model)
         {
@@ -39,6 +39,13 @@ namespace sakenny.API.Controllers
                 }
             }
             return BadRequest("Can't add property");
+        }
+
+        [HttpPost("filter")]
+        public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
+        {
+            var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
+            return Ok(result);
         }
 
         [HttpPut]
@@ -93,5 +100,29 @@ namespace sakenny.API.Controllers
                 return StatusCode(500, $"Unexpected error: {ex.Message}");
             }
         }
+
+        [HttpGet("/owned-properties/{userId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOwnedProperties(string userId)
+        {
+            var properties = await _propertyService.GetUserOwnedPropertiesAsync(userId);
+
+            if (!properties.Any())
+            {
+                return Ok(new { message = "No properties added yet." });
+            }
+
+            return Ok(properties);
+        }
+
+        [HttpGet("top-rated")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<OwnedPropertyDTO>>> GetTopRatedProperties()
+        {
+            var properties = await _propertyService.GetTopRatedPropertiesAsync();
+            return Ok(properties);
+        }
+
+
     }
 }
