@@ -10,5 +10,8 @@ namespace sakenny.Application.Interfaces
     {
         Task<PropertyDTO> AddPropertyAsync(AddPropertyDTO model, string Id);
         Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filterDto);
+        Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId);
+        Task<PropertyDTO> GetPropertyDetailsAsync(int id);
+
     }
 }

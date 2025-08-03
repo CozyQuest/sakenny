@@ -592,7 +592,6 @@ namespace sakenny.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewText")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -618,6 +617,10 @@ namespace sakenny.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
