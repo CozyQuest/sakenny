@@ -608,7 +608,7 @@ namespace sakenny.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "PropertyPermits");
+                name: "PropertyPermit");
 
             migrationBuilder.DropTable(
                 name: "DummyTables");
