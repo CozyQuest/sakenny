@@ -11,6 +11,7 @@ namespace sakenny.Application.Interfaces
         Task<PropertyDTO> AddPropertyAsync(AddPropertyDTO model, string Id);
         Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId);
         Task<PropertyDTO> GetPropertyDetailsAsync(int id);
+        Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId, string requesterRole);
 
     }
 }

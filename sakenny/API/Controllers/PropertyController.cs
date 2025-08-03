@@ -93,5 +93,33 @@ namespace sakenny.API.Controllers
                 return StatusCode(500, $"Unexpected error: {ex.Message}");
             }
         }
+
+        [HttpGet("/owned-properties/{userId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOwnedProperties(string userId)
+        {
+            string requesterRole = null;
+
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                requesterRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            }
+
+            if (requesterRole != "Host")
+            {
+                return Ok(new { message = $"No properties added yet {requesterRole}" });
+            }
+
+            try
+            {
+                var ownedProperties = await _propertyService.GetUserOwnedPropertiesAsync(userId, requesterRole);
+                return Ok(ownedProperties);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
+            }
+        }
+
     }
 }

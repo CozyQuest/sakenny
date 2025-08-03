@@ -19,12 +19,14 @@ namespace sakenny.Application.Services
         private readonly IMapper _mapper;
 
         private readonly IImageService _imageService;
+        private readonly IReviewService _reviewService;
 
-        public PropertyService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService)
+        public PropertyService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, IReviewService reviewService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _imageService = imageService;
+            _reviewService = reviewService;
         }
 
         public async Task<PropertyDTO> AddPropertyAsync(AddPropertyDTO model, string Id)
@@ -200,7 +202,42 @@ namespace sakenny.Application.Services
             return _mapper.Map<PropertyDTO>(property);
         }
 
-       
+        public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId, string requesterRole)
+        {
+            if (requesterRole != "Host")
+            {
+                return Enumerable.Empty<OwnedPropertyDTO>();
+            }
+
+            var properties = await _unitOfWork.Properties.GetAllAsync(
+                p => p.UserId == userId && !p.IsDeleted,
+                includes: p => p.Images
+            );
+
+            var result = new List<OwnedPropertyDTO>();
+
+            foreach (var prop in properties)
+            {
+                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
+
+                result.Add(new OwnedPropertyDTO
+                {
+                    Id = prop.Id,
+                    Title = prop.Title,
+                    MainImageUrl = prop.MainImageUrl,
+                    PeopleCapacity = prop.PeopleCapacity,
+                    Space = prop.Space,
+                    RoomCount = prop.RoomCount,
+                    BathroomCount = prop.BathroomCount,
+                    Price = prop.Price,
+                    AverageRating = avgRating
+                });
+            }
+
+            return result;
+        }
+
+
 
     }
 }
