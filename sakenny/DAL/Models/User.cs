@@ -11,7 +11,7 @@ namespace sakenny.DAL.Models
         public string UrlProfilePicture { get; set; }
         public string? UrlIdFront { get; set; }
         public string? UrlIdBack { get; set; }
-        public bool HostRequest = false;
+        public bool HostRequest { get; set; } = false;
 
         public virtual ICollection<Property>? Properties { get; set; } = new Collection<Property>();
         public virtual ICollection<Review>? Reviews { get; set; } = new Collection<Review>();
