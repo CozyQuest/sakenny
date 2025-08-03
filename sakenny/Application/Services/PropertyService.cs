@@ -200,5 +200,7 @@ namespace sakenny.Application.Services
             return _mapper.Map<PropertyDTO>(property);
         }
 
+       
+
     }
 }
