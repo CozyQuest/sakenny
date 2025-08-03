@@ -19,7 +19,7 @@ namespace sakenny.API.Controllers
         [HttpPost("/register")]
         public async Task<IActionResult> register([FromBody] RegistrationDTO model)
         {
-            if(model == null)
+            if (model == null)
             {
                 return BadRequest("Invalid registration data.");
             }
@@ -36,7 +36,7 @@ namespace sakenny.API.Controllers
                 Select(result => result.Description).ToList());
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Host")]
         [HttpPost("/CompleteRegister")]
         public async Task<IActionResult> CompleteRegister([FromBody] RegistrationDTO model)
         {
@@ -67,7 +67,7 @@ namespace sakenny.API.Controllers
             return Unauthorized(new { message = "Invalid refresh token" });
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Host")]
         [HttpPost("ProfilePic")]
         public async Task<IActionResult> SetProfilePic([FromForm] UploadImageRequestDTO file)
         {
@@ -93,7 +93,6 @@ namespace sakenny.API.Controllers
             return BadRequest("File upload failed");
         }
 
-        [Authorize(Roles = "User")]
         [HttpGet("ProfilePic")]
         public async Task<IActionResult> GetProfilePic()
         {
@@ -110,7 +109,7 @@ namespace sakenny.API.Controllers
             return File(content, contentType ?? "application/octet-stream");
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Host")]
         [HttpGet("profile")]
         public async Task<IActionResult> GetPrivateProfile()
         {
@@ -150,6 +149,29 @@ namespace sakenny.API.Controllers
             {
                 return NotFound(ex.Message);
             }
+        }
+        [Authorize(Roles = "User")]
+        [HttpPost("BecomeHostRequest/")]
+        public async Task<IActionResult> BecomeHostRequest(BecomeHostRequest becomeHostRequest)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.SetIdImagesAsync(userId, becomeHostRequest);
+                if (Result.Succeeded)
+                {
+                    return Ok(new { respond = "Request is Added successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+            return BadRequest();
         }
 
     }

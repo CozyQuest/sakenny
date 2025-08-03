@@ -12,7 +12,7 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250803132350_update-user")]
+    [Migration("20250803180635_update-user")]
     partial class updateuser
     {
         /// <inheritdoc />
@@ -621,6 +621,10 @@ namespace sakenny.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -652,6 +656,9 @@ namespace sakenny.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("HostRequest")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
