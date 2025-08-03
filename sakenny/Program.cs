@@ -39,16 +39,20 @@ namespace sakenny
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<ICheckoutService, sakenny.Application.Services.CheckoutService>();
+            builder.Services.AddScoped<IReviewService, sakenny.Application.Services.ReviewService>();
+            builder.Services.AddScoped<IRentedPropertyService, RentedPropertyService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
+                options.AddPolicy("AllowAngularApp",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:4200")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
+                    });
             });
 
             // Configure RefreshTokenProviderOptions
@@ -134,9 +138,11 @@ namespace sakenny
             }
             app.UseHttpsRedirection();
 
+            app.UseCors("AllowAngularApp");
+
             app.UseAuthorization();
 
-            app.UseCors("AllowAll");
+            //app.UseCors("AllowAll");
 
             app.MapControllers();
             // Create roles at startup

@@ -9,5 +9,11 @@ namespace sakenny.Application.Interfaces
     public interface IPropertyService
     {
         Task<PropertyDTO> AddPropertyAsync(AddPropertyDTO model, string Id);
+        Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filterDto);
+        Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId);
+        Task<PropertyDTO> GetPropertyDetailsAsync(int id);
+        Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId);
+        Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync();
+
     }
 }
