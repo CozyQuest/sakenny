@@ -202,17 +202,16 @@ namespace sakenny.Application.Services
             return _mapper.Map<PropertyDTO>(property);
         }
 
-        public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId, string requesterRole)
+        public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId)
         {
-            if (requesterRole != "Host")
-            {
-                return Enumerable.Empty<OwnedPropertyDTO>();
-            }
 
             var properties = await _unitOfWork.Properties.GetAllAsync(
                 p => p.UserId == userId && !p.IsDeleted,
                 includes: p => p.Images
             );
+
+            if (properties == null || !properties.Any())
+                return new List<OwnedPropertyDTO>();
 
             var result = new List<OwnedPropertyDTO>();
 

@@ -20,7 +20,7 @@ namespace sakenny.API.Controllers
             _propertyService = propertyService;
         }
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Host")]
         [Route("/AddProperty")]
         public async Task<IActionResult> AddProperty([FromForm] AddPropertyDTO model)
         {
@@ -98,28 +98,16 @@ namespace sakenny.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetOwnedProperties(string userId)
         {
-            string requesterRole = null;
+            var properties = await _propertyService.GetUserOwnedPropertiesAsync(userId);
 
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            if (!properties.Any())
             {
-                requesterRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            }
-
-            if (requesterRole != "Host")
-            {
-                return Ok(new { message = $"No properties added yet {requesterRole}" });
+                return Ok(new { message = "No properties added yet." });
             }
 
-            try
-            {
-                var ownedProperties = await _propertyService.GetUserOwnedPropertiesAsync(userId, requesterRole);
-                return Ok(ownedProperties);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Unexpected error: {ex.Message}");
-            }
+            return Ok(properties);
         }
+
 
     }
 }
