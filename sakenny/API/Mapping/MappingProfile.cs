@@ -16,6 +16,7 @@ namespace sakenny.API.Mapping
             CreateMap<PropertyType, AddTypeDTO>().ReverseMap();
             CreateMap<PropertyType, UpdateTypeDTO>().ReverseMap();
             CreateMap<PropertyType, GetAllTypeDTO>();
+            CreateMap<User, UserOwnerDTO>();
 
 
             CreateMap<User, UserProfileDTO>()
@@ -65,6 +66,22 @@ namespace sakenny.API.Mapping
                 .ForMember(dest => dest.PropertyPermit, opt => opt.Ignore())
                 .ForMember(dest => dest.Property, opt => opt.Ignore())
                 .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.MainImageUrl));
+
+
+            CreateMap<UpdatePropertyDTO, Property>()
+              .ForMember(dest => dest.MainImageUrl, opt => opt.Ignore())
+              .ForMember(dest => dest.Images, opt => opt.Ignore())
+              .ForAllMembers(opts => opts.Condition((src, dest, srcMember) =>
+                 srcMember != null && srcMember.ToString() != "0"));
+
+            CreateMap<Property, PropertySnapshot>()
+               .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+
+            CreateMap<PostReviewDTO, Review>();
+
+
+
 
         }
     }
