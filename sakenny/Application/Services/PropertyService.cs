@@ -202,6 +202,49 @@ namespace sakenny.Application.Services
             return _mapper.Map<PropertyDTO>(property);
         }
 
+        public async Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync()
+        {
+            var includes = new Expression<Func<Property, object>>[]
+            {
+              p => p.Images
+            };
+
+            var properties = await _unitOfWork.Properties.GetAllAsync(
+                p => !p.IsDeleted,
+                includes: includes
+            );
+
+            var topRated = new List<OwnedPropertyDTO>();
+
+            foreach (var property in properties)
+            {
+                var averageRating = await _reviewService.GetAverageRatingForPropertyAsync(property.Id);
+
+                var dto = new OwnedPropertyDTO
+                {
+                    Id = property.Id,
+                    Title = property.Title,
+                    MainImageUrl = property.MainImageUrl,
+                    PeopleCapacity = property.PeopleCapacity,
+                    Space = property.Space,
+                    RoomCount = property.RoomCount,
+                    BathroomCount = property.BathroomCount,
+                    Price = property.Price,
+                    AverageRating = averageRating
+                };
+
+                topRated.Add(dto);
+            }
+
+            return topRated
+                .OrderByDescending(p => p.AverageRating)
+                .ThenByDescending(p => p.Price) 
+                .Take(10)
+                .ToList();
+        }
+
+
+
         public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId)
         {
 
