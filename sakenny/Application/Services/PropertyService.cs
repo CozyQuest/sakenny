@@ -190,7 +190,9 @@ namespace sakenny.Application.Services
             var includes = new Expression<Func<Property, object>>[]
             {
                p => p.Images,
-               p => p.PropertyType
+               p => p.PropertyType,
+               p => p.Services,
+               p => p.User
             };
 
             var property = await _unitOfWork.Properties.GetByIdAsync(id, includes);
