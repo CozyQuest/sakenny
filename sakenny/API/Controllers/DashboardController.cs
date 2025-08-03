@@ -56,7 +56,7 @@ namespace sakenny.API.Controllers
             Ok(await _dashboardService.GetTopPropertiesAsync());
 
         [HttpGet("recenttransactions")]
-        public async Task<IActionResult> GetRecentTransactions() =>
-            Ok(await _dashboardService.GetRecentTransactionsAsync());
+        public async Task<IActionResult> GetRecentTransactions([FromQuery] string? hostId = null) =>
+            Ok(await _dashboardService.GetRecentTransactionsAsync(hostId));
     }
 }
