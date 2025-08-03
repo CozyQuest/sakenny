@@ -16,6 +16,7 @@ namespace sakenny.API.Mapping
             CreateMap<PropertyType, AddTypeDTO>().ReverseMap();
             CreateMap<PropertyType, UpdateTypeDTO>().ReverseMap();
             CreateMap<PropertyType, GetAllTypeDTO>();
+            CreateMap<User, UserOwnerDTO>();
 
 
             CreateMap<User, UserProfileDTO>()

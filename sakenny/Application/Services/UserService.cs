@@ -20,7 +20,7 @@ namespace sakenny.Services
         private readonly IImageService _imageService;
         private readonly LoginService _loginService;
 
-        public UserService(IConfiguration configuration, IUnitOfWork unitOfWork, IImageService imageService,LoginService loginService, IMapper mapper)
+        public UserService(IConfiguration configuration, IUnitOfWork unitOfWork, IImageService imageService, LoginService loginService, IMapper mapper)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -67,7 +67,7 @@ namespace sakenny.Services
             return token;
         }
 
-        public async Task<IdentityResult> SetProfilePicAsync(String Id,UploadImageRequestDTO file)
+        public async Task<IdentityResult> SetProfilePicAsync(String Id, UploadImageRequestDTO file)
         {
             if (file == null || file.File.Length == 0)
             {
@@ -98,7 +98,7 @@ namespace sakenny.Services
             }
             try
             {
-                var (Content,ContentType) = await _imageService.GetImageStreamAsync(user.UrlProfilePicture);
+                var (Content, ContentType) = await _imageService.GetImageStreamAsync(user.UrlProfilePicture);
                 return (Content, ContentType);
             }
             catch (InvalidOperationException ex)
@@ -110,7 +110,7 @@ namespace sakenny.Services
 
         public async Task<UserProfileDTO> GetUserPrivateProfileAsync(string userId)
         {
-            var user =  await _unitOfWork.userManager.FindByIdAsync(userId);
+            var user = await _unitOfWork.userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new InvalidOperationException("User not found.");
 
@@ -125,7 +125,35 @@ namespace sakenny.Services
 
             return _mapper.Map<UserPublicProfileDTO>(user);
         }
-        
 
+        public async Task<IdentityResult> SetIdImagesAsync(String Id, BecomeHostRequest files)
+        {
+            if (files == null || files.BackImage.Length == 0 || files.FrontImage.Length == 0)
+            {
+                throw new InvalidOperationException("No file uploaded.");
+            }
+            var user = (User)await _unitOfWork.userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+            if (user.HostRequest == true)
+            {
+                throw new InvalidOperationException("You Already requested once");
+            }
+            try
+            {
+                var FrontImageUrl = await _imageService.UploadImageAsync(files.FrontImage);
+                user.UrlIdFront = FrontImageUrl;
+                var BackImage = await _imageService.UploadImageAsync(files.BackImage);
+                user.UrlIdBack = BackImage;
+                user.HostRequest = true;
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException($"File upload failed: {ex.Message}");
+            }
+            return await _unitOfWork.userManager.UpdateAsync(user);
+        }
     }
 }

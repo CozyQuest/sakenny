@@ -5,7 +5,7 @@
 namespace sakenny.Migrations
 {
     /// <inheritdoc />
-    public partial class updateuser : Migration
+    public partial class seededdata : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

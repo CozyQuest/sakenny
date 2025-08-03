@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using sakenny.DAL.Models;
 
 namespace sakenny.Application.DTO
 {
@@ -29,5 +30,7 @@ namespace sakenny.Application.DTO
         public int PeopleCapacity { get; set; }
         public string MainImageUrl { get; set; }
         public List<string> Images { get; set; }
+        public HashSet<GetAllServiceDTO> Services { get; set; }
+        public UserOwnerDTO User { get; set; }
     }
 }

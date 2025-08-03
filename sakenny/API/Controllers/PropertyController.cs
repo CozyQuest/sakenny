@@ -41,6 +41,13 @@ namespace sakenny.API.Controllers
             return BadRequest("Can't add property");
         }
 
+        [HttpPost("filter")]
+        public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
+        {
+            var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
+            return Ok(result);
+        }
+
         [HttpPut]
         [Authorize(Roles = "Host")]
         [Route("/UpdateProperty/{id}")]
