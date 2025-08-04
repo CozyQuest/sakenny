@@ -12,8 +12,8 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250802114315_newMigration")]
-    partial class newMigration
+    [Migration("20250803174909_seeded-data")]
+    partial class seededdata
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -420,7 +420,7 @@ namespace sakenny.Migrations
 
                     b.HasIndex("PropertyID");
 
-                    b.ToTable("PropertyPermit");
+                    b.ToTable("PropertyPermits");
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
@@ -595,7 +595,6 @@ namespace sakenny.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewText")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -621,6 +620,10 @@ namespace sakenny.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -797,12 +800,12 @@ namespace sakenny.Migrations
             modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.HasOne("sakenny.DAL.Models.Admin", "Admin")
-                        .WithMany("PropertyPermit")
+                        .WithMany("PropertyPermits")
                         .HasForeignKey("AdminID")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("sakenny.DAL.Models.Property", "Property")
-                        .WithMany("PropertyPermit")
+                        .WithMany("PropertyPermits")
                         .HasForeignKey("PropertyID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -887,7 +890,7 @@ namespace sakenny.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("PropertyPermit");
+                    b.Navigation("PropertyPermits");
 
                     b.Navigation("PropertySnapshots");
 
@@ -909,7 +912,7 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.DAL.Models.Admin", b =>
                 {
-                    b.Navigation("PropertyPermit");
+                    b.Navigation("PropertyPermits");
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.User", b =>
