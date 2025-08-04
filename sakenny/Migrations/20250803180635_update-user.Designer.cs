@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using sakenny.DAL;
 
@@ -11,9 +12,11 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250803180635_update-user")]
+    partial class updateuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -394,7 +397,7 @@ namespace sakenny.Migrations
                     b.ToTable("Properties");
                 });
 
-            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -797,7 +800,7 @@ namespace sakenny.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.HasOne("sakenny.DAL.Models.Admin", "Admin")
                         .WithMany("PropertyPermits")
@@ -821,7 +824,7 @@ namespace sakenny.Migrations
                         .WithMany("PropertySnapshots")
                         .HasForeignKey("PropertyId");
 
-                    b.HasOne("sakenny.DAL.Models.PropertyPermits", "PropertyPermits")
+                    b.HasOne("sakenny.DAL.Models.PropertyPermit", "PropertyPermit")
                         .WithOne("PropertySnapshot")
                         .HasForeignKey("sakenny.DAL.Models.PropertySnapshot", "PropertyPermitId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -841,7 +844,7 @@ namespace sakenny.Migrations
 
                     b.Navigation("Property");
 
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
 
                     b.Navigation("PropertyType");
 
@@ -899,7 +902,7 @@ namespace sakenny.Migrations
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.Navigation("PropertySnapshot")
                         .IsRequired();
