@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
@@ -20,7 +19,7 @@ namespace sakenny.API.Controllers
             _propertyService = propertyService;
         }
         [HttpPost]
-        [Authorize(Roles = "Host")]
+        [Authorize(Roles = "User")]
         [Route("/AddProperty")]
         public async Task<IActionResult> AddProperty([FromForm] AddPropertyDTO model)
         {
@@ -120,6 +119,18 @@ namespace sakenny.API.Controllers
         public async Task<ActionResult<List<OwnedPropertyDTO>>> GetTopRatedProperties()
         {
             var properties = await _propertyService.GetTopRatedPropertiesAsync();
+            return Ok(properties);
+        }
+
+        [HttpGet("all-properties")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllPropertiesAsync()
+        {
+            var properties = await _propertyService.GetAllPropertiesAsync();
+            if (properties == null || !properties.Any())
+            {
+                return NotFound("No properties found.");
+            }
             return Ok(properties);
         }
 

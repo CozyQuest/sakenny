@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 using sakenny.DAL.Models;
 
 namespace sakenny.API.Mapping
@@ -49,6 +50,8 @@ namespace sakenny.API.Mapping
             // Add User mapping
             CreateMap<RegistrationDTO, User>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+
+            CreateMap<Property, GetAllPropertiesDTO>();
 
             CreateMap<Property, PropertyDTO>()
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
