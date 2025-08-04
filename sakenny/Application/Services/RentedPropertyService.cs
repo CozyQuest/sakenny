@@ -50,14 +50,13 @@ namespace sakenny.Application.Services
 
         public async Task<HostEarningsDTO> GetHostEarningsAsync(string hostId)
         {
-            // Get properties for the host with Rentings, Reviews, and Images
             var properties = await _unitOfWork.Properties.GetAllAsync(
                 p => p.UserId == hostId && !p.IsDeleted,
                 includes: new Expression<Func<Property, object>>[]
                 {
-            p => p.Rentings!,
-            p => p.Reviews!,
-            p => p.Images!
+                  p => p.Rentings!,
+                  p => p.Reviews!,
+                  p => p.Images!
                 }
             );
 
@@ -65,12 +64,10 @@ namespace sakenny.Application.Services
                 .Where(p => p.Rentings != null && p.Rentings.Any())
                 .ToList();
 
-            // Eager load Renters (Users) manually
             foreach (var property in filteredProperties)
             {
                 foreach (var renting in property.Rentings!)
                 {
-                    // Load user manually using UserManager or context, since EF lazy loading is not enabled
                     renting.User = (User) await _unitOfWork.userManager.FindByIdAsync(renting.UserId);
                 }
             }

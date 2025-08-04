@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using sakenny.Application.DTO;
+using sakenny.Application.Services;
 using sakenny.Services;
 using System.Security.Claims;
 
@@ -11,9 +12,11 @@ namespace sakenny.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
-        public UserController(UserService userService)
+        private readonly GoogleAuthService _googleAuthService;
+        public UserController(UserService userService, GoogleAuthService googleAuthService)
         {
             _userService = userService;
+            _googleAuthService = googleAuthService;
         }
 
         [HttpPost("/register")]
@@ -65,6 +68,22 @@ namespace sakenny.API.Controllers
                 return Ok(tokenResponse);
             }
             return Unauthorized(new { message = "Invalid refresh token" });
+        }
+
+        [HttpPost("/google-auth")]
+        public async Task<IActionResult> GoogleAuth([FromBody] GoogleAuthDTO model)
+        {
+            if (model == null || string.IsNullOrEmpty(model.IdToken))
+            {
+                return BadRequest("Invalid Google token.");
+            }
+
+            var tokenResponse = await _googleAuthService.GoogleSignInAsync(model);
+            if (!string.IsNullOrEmpty(tokenResponse.AccessToken))
+            {
+                return Ok(tokenResponse);
+            }
+            return Unauthorized(new { message = "Google authentication failed" });
         }
 
         [Authorize(Roles = "User,Host")]
@@ -150,6 +169,7 @@ namespace sakenny.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "User")]
         [HttpPost("BecomeHostRequest/")]
         public async Task<IActionResult> BecomeHostRequest(BecomeHostRequest becomeHostRequest)
