@@ -66,6 +66,7 @@ namespace sakenny.API.Controllers
             }
             return Unauthorized(new { message = "Invalid refresh token" });
         }
+
         [Authorize(Roles = "User")]
         [HttpPost("ProfilePic")]
         public async Task<IActionResult> SetProfilePic([FromForm] UploadImageRequestDTO file)
@@ -91,6 +92,7 @@ namespace sakenny.API.Controllers
             }
             return BadRequest("File upload failed");
         }
+
         [Authorize(Roles = "User")]
         [HttpGet("ProfilePic")]
         public async Task<IActionResult> GetProfilePic()
@@ -128,6 +130,7 @@ namespace sakenny.API.Controllers
         }
 
         [HttpGet("profile/{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPublicProfile(string id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

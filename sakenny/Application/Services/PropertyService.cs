@@ -5,6 +5,18 @@ using sakenny.Application.Interfaces;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using sakenny.Application.DTO;
+using sakenny.Application.Interfaces;
+using sakenny.DAL.Interfaces;
+using sakenny.DAL.Models;
+using Stripe;
 
 namespace sakenny.Application.Services
 {
@@ -14,12 +26,14 @@ namespace sakenny.Application.Services
         private readonly IMapper _mapper;
         private readonly ApplicationDBContext _context;
         private readonly IImageService _imageService;
+        private readonly IReviewService _reviewService;
 
-        public PropertyService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, ApplicationDBContext context)
+        public PropertyService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, IReviewService reviewService,ApplicationDBContext context)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _imageService = imageService;
+            _reviewService = reviewService;
             _context = context;
         }
 
@@ -37,6 +51,16 @@ namespace sakenny.Application.Services
                 property.UserId = Id;
                 property.MainImageUrl = MainImageUrl; // Set main image URL directly
 
+                if (model.ServiceIds != null && model.ServiceIds.Any())
+                {
+                    foreach (var serviceId in model.ServiceIds)
+                    {
+                        var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
+                        if (service != null)
+                            property.Services.Add(service);
+                    }
+                }
+
                 // Create image entities and set up relationships
                 List<Image> images = new List<Image>
                 {
@@ -45,7 +69,7 @@ namespace sakenny.Application.Services
                         Property = property
                     }
                 };
-                
+
                 foreach (var imageUrl in imagesUrl)
                 {
                     images.Add(new Image
@@ -166,7 +190,7 @@ namespace sakenny.Application.Services
             // Execute query so far and get list
             var properties = await query.ToListAsync();
 
-            // ? Apply service filtering in-memory
+            // Apply service filtering in-memory
             if (filter.ServiceIds?.Any(id => id > 0) == true)
             {
                 properties = properties
