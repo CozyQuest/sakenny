@@ -1,15 +1,10 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
 using sakenny.Application.Interfaces;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace sakenny.Application.Services
 {
@@ -105,18 +100,20 @@ namespace sakenny.Application.Services
 
         public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
+            filter ??= new PropertyFilterDTO(); // Ensure filter is not null
+
+            // Start building query from Properties table with necessary Includes
             var query = _context.Properties
+                .AsNoTracking() // No tracking since this is a read-only operation
                 .Include(p => p.PropertyType)
                 .Include(p => p.Services)
                 .Include(p => p.Images)
+                .Where(p => !p.IsDeleted)
                 .AsQueryable();
 
-            // ? Apply filters
+            // Apply filters step-by-step
             if (filter.PropertyTypeIds?.Any() == true)
                 query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
-
-            if (filter.ServiceIds?.Any() == true)
-                query = query.Where(p => p.Services.Any(s => filter.ServiceIds.Contains(s.Id)));
 
             if (!string.IsNullOrEmpty(filter.Country))
                 query = query.Where(p => p.Country == filter.Country);
@@ -127,19 +124,19 @@ namespace sakenny.Application.Services
             if (!string.IsNullOrEmpty(filter.District))
                 query = query.Where(p => p.District == filter.District);
 
-            if (filter.MinPeople.HasValue)
+            if (filter.MinPeople.HasValue && filter.MinPeople > 0)
                 query = query.Where(p => p.PeopleCapacity >= filter.MinPeople);
 
-            if (filter.MinSpace.HasValue)
+            if (filter.MinSpace.HasValue && filter.MinSpace > 0)
                 query = query.Where(p => p.Space >= filter.MinSpace);
 
-            if (filter.MinPrice.HasValue)
+            if (filter.MinPrice.HasValue && filter.MinPrice > 0)
                 query = query.Where(p => p.Price >= filter.MinPrice.Value);
 
-            if (filter.MaxPrice.HasValue)
+            if (filter.MaxPrice.HasValue && filter.MaxPrice > 0)
                 query = query.Where(p => p.Price <= filter.MaxPrice.Value);
 
-            // ? Ordering
+            // Apply ordering
             if (!string.IsNullOrEmpty(filter.OrderBy))
             {
                 switch (filter.OrderBy.ToLower())
@@ -156,14 +153,28 @@ namespace sakenny.Application.Services
                     case "space_desc":
                         query = query.OrderByDescending(p => p.Space);
                         break;
-                        // Add more cases for rating, review count, etc.
+                    default:
+                        query = query.OrderByDescending(p => p.Id); // fallback
+                        break;
                 }
             }
+            else
+            {
+                query = query.OrderByDescending(p => p.Id); // fallback
+            }
 
+            // Execute query so far and get list
             var properties = await query.ToListAsync();
+
+            // ? Apply service filtering in-memory
+            if (filter.ServiceIds?.Any(id => id > 0) == true)
+            {
+                properties = properties
+                    .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
+                    .ToList();
+            }
+            // Map result to DTO and return
             return _mapper.Map<List<PropertyDTO>>(properties);
         }
-
-
     }
 }
