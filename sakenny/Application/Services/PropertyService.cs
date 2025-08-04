@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 using sakenny.Application.Interfaces;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
@@ -358,6 +359,14 @@ namespace sakenny.Application.Services
             return result;
         }
 
+        public async Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync()
+        {
+            var properties = await _unitOfWork.Properties.GetAllAsync();
+            if (properties == null || !properties.Any())
+                return new List<GetAllPropertiesDTO>();
+
+            return _mapper.Map<List<GetAllPropertiesDTO>>(properties);
+        }
 
 
     }

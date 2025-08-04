@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 
 namespace sakenny.Application.Interfaces
 {
@@ -14,6 +15,7 @@ namespace sakenny.Application.Interfaces
         Task<PropertyDTO> GetPropertyDetailsAsync(int id);
         Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId);
         Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync();
+        Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync();
 
     }
 }
