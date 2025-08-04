@@ -200,6 +200,8 @@ namespace sakenny.Application.Services
             if (property.UserId != userId)
                 throw new UnauthorizedAccessException("You do not have permission to update this property.");
 
+            var existingMainImageUrl = property.MainImageUrl;
+
             _mapper.Map(model, property);
 
             if (model.ServiceIds != null)

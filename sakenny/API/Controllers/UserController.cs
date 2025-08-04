@@ -150,6 +150,7 @@ namespace sakenny.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "User")]
         [HttpPost("BecomeHostRequest/")]
         public async Task<IActionResult> BecomeHostRequest(BecomeHostRequest becomeHostRequest)
