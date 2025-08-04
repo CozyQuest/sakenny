@@ -25,11 +25,11 @@ namespace sakenny.API.Mapping
             .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
             .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
 
-           CreateMap<User, UserPublicProfileDTO>()
-            .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
-            .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
-            .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
-                
+            CreateMap<User, UserPublicProfileDTO>()
+             .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+             .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+             .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
+
             CreateMap<Property, PropertyCheckoutDTO>()
                 .ForMember(dest => dest.MainImageURL,
                            opt => opt.MapFrom(src => src.MainImageUrl))
@@ -82,6 +82,15 @@ namespace sakenny.API.Mapping
 
 
             CreateMap<PostReviewDTO, Review>();
+
+            CreateMap<UserHostRequestDTO, User>();
+
+            CreateMap<User, UserHostRequestDTO>()
+                .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+
 
 
 
