@@ -153,7 +153,66 @@ namespace sakenny.Services
             {
                 throw new InvalidOperationException($"File upload failed: {ex.Message}");
             }
+
             return await _unitOfWork.userManager.UpdateAsync(user);
         }
+        public async Task<bool> CheckBecomeHostRequest(String Id)
+        {
+            var user = (User)await _unitOfWork.userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+            return user.HostRequest;
+        }
+        public async Task<IdentityResult> ConvertToHost(String Id)
+        {
+            var user = (User)await _unitOfWork.userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+            try
+            {
+                await _unitOfWork.userManager.RemoveFromRoleAsync(user, "User");
+                var respond = await _unitOfWork.userManager.AddToRoleAsync(user, "Host");
+                return respond;
+
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<IdentityResult> DenyConvertToHost(String Id)
+        {
+            var user = (User)await _unitOfWork.userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+            try
+            {
+                user.UrlIdBack = null;
+                user.UrlIdFront = null;
+                user.HostRequest = false;
+                return await _unitOfWork.userManager.UpdateAsync(user);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+        public List<UserHostRequestDTO> GetAllUserRequest()
+        {
+            var users = _unitOfWork.userManager.Users
+                .Where(u => ((User)u).HostRequest == true)
+                .Cast<User>()
+                .ToList();
+
+            return _mapper.Map<List<UserHostRequestDTO>>(users);
+        }
+
     }
 }
