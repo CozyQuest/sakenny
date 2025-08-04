@@ -173,6 +173,92 @@ namespace sakenny.API.Controllers
             }
             return BadRequest();
         }
+        [Authorize(Roles = "User")]
+        [HttpGet("CheckBecomeHostRequest/")]
+        public async Task<IActionResult> CheckBecomeHostRequest()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.CheckBecomeHostRequest(userId);
+                if (Result)
+                {
+                    return BadRequest(new { respond = "You Already requested once" });
+                }
+                else
+                {
+                    return Ok(new { respond = "Add new Request" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("ConvertToHost/")]
+        public async Task<IActionResult> ConvertToHost()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.ConvertToHost(userId);
+                if (Result.Succeeded)
+                {
+                    return Ok(new { respond = "user converted successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+            return BadRequest();
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("DenyConvertToHost/")]
+        public async Task<IActionResult> DenyConvertToHost()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.DenyConvertToHost(userId);
+                if (Result.Succeeded)
+                {
+                    return Ok(new { respond = "Request is Added successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+            return BadRequest();
+        }
+        // [Authorize(Roles = "Admin")]
+        [HttpPost("UserHostList/")]
+        public IActionResult UserHostList()
+        {
+            try
+            {
+                var List = _userService.GetAllUserRequest();
+                return Ok(List);
 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+        }
     }
 }
