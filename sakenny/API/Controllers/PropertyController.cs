@@ -1,9 +1,10 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 using sakenny.Application.Interfaces;
+using System.Security.Claims;
 
 namespace sakenny.API.Controllers
 {
@@ -122,18 +123,12 @@ namespace sakenny.API.Controllers
             return Ok(properties);
         }
 
-        [HttpGet("all-properties")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetAllPropertiesAsync()
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllPropertiesAsync([FromQuery] PaginationDTO pagination)
         {
-            var properties = await _propertyService.GetAllPropertiesAsync();
-            if (properties == null || !properties.Any())
-            {
-                return NotFound("No properties found.");
-            }
-            return Ok(properties);
+            var result = await _propertyService.GetAllPropertiesAsync(pagination);
+            return Ok(result);
         }
-
 
     }
 }

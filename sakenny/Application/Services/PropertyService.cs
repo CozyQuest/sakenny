@@ -382,14 +382,29 @@ namespace sakenny.Application.Services
             return result;
         }
 
-        public async Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync()
+        public async Task<PagedResultDTO<GetAllPropertiesDTO>> GetAllPropertiesAsync(PaginationDTO pagination)
         {
-            var properties = await _unitOfWork.Properties.GetAllAsync();
-            if (properties == null || !properties.Any())
-                return new List<GetAllPropertiesDTO>();
+            var allProperties = await _unitOfWork.Properties.GetAllAsync(p => !p.IsDeleted);
 
-            return _mapper.Map<List<GetAllPropertiesDTO>>(properties);
+            if (allProperties == null || !allProperties.Any())
+                return new PagedResultDTO<GetAllPropertiesDTO>();
+
+            var totalCount = allProperties.Count();
+
+            var pagedProperties = allProperties
+                .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToList();
+
+            return new PagedResultDTO<GetAllPropertiesDTO>
+            {
+                Items = _mapper.Map<List<GetAllPropertiesDTO>>(pagedProperties),
+                TotalCount = totalCount,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize
+            };
         }
+
 
 
     }
