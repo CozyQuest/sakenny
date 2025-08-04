@@ -256,6 +256,10 @@ namespace sakenny.Migrations
                 });
 
             migrationBuilder.CreateTable(
+<<<<<<< HEAD
+=======
+
+>>>>>>> Dashboard
                 name: "Images",
                 columns: table => new
                 {
@@ -607,6 +611,12 @@ namespace sakenny.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+<<<<<<< HEAD
+=======
+                name: "PropertyPermits");
+
+            migrationBuilder.DropTable(
+>>>>>>> Dashboard
                 name: "DummyTables");
 
             migrationBuilder.DropTable(

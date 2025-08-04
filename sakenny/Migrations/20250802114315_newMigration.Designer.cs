@@ -12,8 +12,18 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
+<<<<<<< HEAD
     [Migration("20250802114315_newMigration")]
     partial class newMigration
+=======
+<<<<<<<< HEAD:sakenny/Migrations/20250731181732_AddMainImageUrlAndStatus.Designer.cs
+    [Migration("20250731181732_AddMainImageUrlAndStatus")]
+    partial class AddMainImageUrlAndStatus
+========
+    [Migration("20250802114315_newMigration")]
+    partial class newMigration
+>>>>>>>> Dashboard:sakenny/Migrations/20250802114315_newMigration.Designer.cs
+>>>>>>> Dashboard
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -397,7 +407,11 @@ namespace sakenny.Migrations
                     b.ToTable("Properties");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
+=======
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
+>>>>>>> Dashboard
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -420,7 +434,11 @@ namespace sakenny.Migrations
 
                     b.HasIndex("PropertyID");
 
+<<<<<<< HEAD
                     b.ToTable("PropertyPermit");
+=======
+                    b.ToTable("PropertyPermits");
+>>>>>>> Dashboard
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
@@ -794,15 +812,26 @@ namespace sakenny.Migrations
                     b.Navigation("User");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.HasOne("sakenny.DAL.Models.Admin", "Admin")
                         .WithMany("PropertyPermit")
+=======
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
+                {
+                    b.HasOne("sakenny.DAL.Models.Admin", "Admin")
+                        .WithMany("PropertyPermits")
+>>>>>>> Dashboard
                         .HasForeignKey("AdminID")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("sakenny.DAL.Models.Property", "Property")
+<<<<<<< HEAD
                         .WithMany("PropertyPermit")
+=======
+                        .WithMany("PropertyPermits")
+>>>>>>> Dashboard
                         .HasForeignKey("PropertyID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -818,7 +847,11 @@ namespace sakenny.Migrations
                         .WithMany("PropertySnapshots")
                         .HasForeignKey("PropertyId");
 
+<<<<<<< HEAD
                     b.HasOne("sakenny.DAL.Models.PropertyPermit", "PropertyPermit")
+=======
+                    b.HasOne("sakenny.DAL.Models.PropertyPermits", "PropertyPermits")
+>>>>>>> Dashboard
                         .WithOne("PropertySnapshot")
                         .HasForeignKey("sakenny.DAL.Models.PropertySnapshot", "PropertyPermitId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -838,7 +871,11 @@ namespace sakenny.Migrations
 
                     b.Navigation("Property");
 
+<<<<<<< HEAD
                     b.Navigation("PropertyPermit");
+=======
+                    b.Navigation("PropertyPermits");
+>>>>>>> Dashboard
 
                     b.Navigation("PropertyType");
 
@@ -887,7 +924,11 @@ namespace sakenny.Migrations
                 {
                     b.Navigation("Images");
 
+<<<<<<< HEAD
                     b.Navigation("PropertyPermit");
+=======
+                    b.Navigation("PropertyPermits");
+>>>>>>> Dashboard
 
                     b.Navigation("PropertySnapshots");
 
@@ -896,7 +937,11 @@ namespace sakenny.Migrations
                     b.Navigation("Reviews");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
+=======
+            modelBuilder.Entity("sakenny.DAL.Models.PropertyPermits", b =>
+>>>>>>> Dashboard
                 {
                     b.Navigation("PropertySnapshot")
                         .IsRequired();
@@ -909,7 +954,11 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.DAL.Models.Admin", b =>
                 {
+<<<<<<< HEAD
                     b.Navigation("PropertyPermit");
+=======
+                    b.Navigation("PropertyPermits");
+>>>>>>> Dashboard
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.User", b =>
