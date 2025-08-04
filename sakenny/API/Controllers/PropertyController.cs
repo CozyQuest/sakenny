@@ -48,7 +48,7 @@ namespace sakenny.API.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Host")]
+        [Authorize(Roles = "User")]
         [Route("/UpdateProperty/{id}")]
         public async Task<IActionResult> UpdateProperty(int id, [FromForm] UpdatePropertyDTO model)
         {

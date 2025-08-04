@@ -201,19 +201,11 @@ namespace sakenny.Application.Services
             if (property.UserId != userId)
                 throw new UnauthorizedAccessException("You do not have permission to update this property.");
 
-            var existingMainImageUrl = property.MainImageUrl;
-
             _mapper.Map(model, property);
 
             if (model.ServiceIds != null)
             {
-                var existingServices = property.Services.ToList();
-
-                foreach (var existingService in existingServices)
-                {
-                    property.Services.Remove(existingService);
-                }
-
+                property.Services.Clear();
                 foreach (var serviceId in model.ServiceIds)
                 {
                     var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
@@ -229,43 +221,26 @@ namespace sakenny.Application.Services
                 var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
                 property.MainImageUrl = newMainImageUrl;
 
-                await _unitOfWork.Images.AddAsync(new Image
+                property.Images.Add(new Image
                 {
                     Url = newMainImageUrl,
                     PropertyId = property.Id
                 });
             }
-            // else
-            // {
-            //     property.MainImageUrl = existingMainImageUrl;
-            // }
 
             if (model.Images != null && model.Images.Any())
             {
-                var oldImages = await _unitOfWork.Images.GetAllAsync(img => img.PropertyId == property.Id);
-
-                foreach (var oldImage in oldImages)
-                {
-                    _unitOfWork.Images.DeleteAsync(oldImage);
-                }
-
                 property.Images.Clear();
-
                 var newImageUrls = await _imageService.UploadImagesAsync(model.Images);
                 foreach (var imageUrl in newImageUrls)
                 {
-                    var newImage = new Image
+                    property.Images.Add(new Image
                     {
                         Url = imageUrl,
                         PropertyId = property.Id
-                    };
-                    property.Images.Add(newImage);
-                    await _unitOfWork.Images.AddAsync(newImage);
+                    });
                 }
             }
-
-            var updatedImages = await _unitOfWork.Images.GetAllAsync(img => img.PropertyId == property.Id);
-            property.Images = updatedImages.ToList();
 
             var snapshot = _mapper.Map<PropertySnapshot>(property);
             snapshot.PropertyId = property.Id;
@@ -288,7 +263,6 @@ namespace sakenny.Application.Services
 
             return _mapper.Map<PropertyDTO>(property);
         }
-
 
         public async Task<PropertyDTO> GetPropertyDetailsAsync(int id)
         {
