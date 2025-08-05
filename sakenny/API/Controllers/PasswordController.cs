@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using sakenny.Application.DTO;
@@ -15,6 +16,7 @@ namespace sakenny.API.Controllers
         {
             _passwordService = passwordService;
         }
+        [Authorize(Roles = "User,Host")]
         [HttpPut("update-password")]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDTO updatePasswordDTO)
         {
