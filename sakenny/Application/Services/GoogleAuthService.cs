@@ -67,14 +67,23 @@ namespace sakenny.Application.Services
                     }
                 }
 
-                // Generate JWT tokens using existing LoginService
-                var accessToken = await GenerateAccessTokenAsync(user);
+                // Generate JWT tokens using existing LoginService with RememberMe support
+                var tokenExpiry = model.RememberMe 
+                    ? DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:RememberMeExpiryMinutes"]!))
+                    : DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!));
+                
+                var accessToken = await GenerateAccessTokenAsync(user, tokenExpiry);
                 var refreshToken = GenerateRefreshToken();
 
                 await _unitOfWork.userManager.SetAuthenticationTokenAsync(user, "RefreshTokenProvider", "RefreshToken", refreshToken);
 
-                var accessTokenExpiry = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!));
-                var refreshTokenExpiry = DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:RefreshTokenExpiryDays"]!));
+                var accessTokenExpiry = model.RememberMe 
+                    ? DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:RememberMeExpiryMinutes"]!))
+                    : DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!));
+                
+                var refreshTokenExpiry = model.RememberMe
+                    ? DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:RememberMeRefreshTokenExpiryDays"]!))
+                    : DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:RefreshTokenExpiryDays"]!));
 
                 return new TokenResponseDTO
                 {
@@ -90,7 +99,7 @@ namespace sakenny.Application.Services
             }
         }
 
-        private async Task<string> GenerateAccessTokenAsync(IdentityUser user)
+        private async Task<string> GenerateAccessTokenAsync(IdentityUser user, DateTime? customExpiry = null)
         {
             // Create a temporary LoginDTO to use existing login service
             var loginDto = new LoginDTO { Email = user.Email!, Password = "" };
@@ -111,7 +120,7 @@ namespace sakenny.Application.Services
 
             var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
+                expires: customExpiry ?? DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
                 claims: authClaims,
                 signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(
                     new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
