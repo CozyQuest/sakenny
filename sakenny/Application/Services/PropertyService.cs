@@ -115,18 +115,16 @@ namespace sakenny.Application.Services
 
         public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
-            filter ??= new PropertyFilterDTO(); // Ensure filter is not null
+            filter ??= new PropertyFilterDTO();
 
-            // Start building query from Properties table with necessary Includes
             var query = _context.Properties
-                .AsNoTracking() // No tracking since this is a read-only operation
+                .AsNoTracking()
                 .Include(p => p.PropertyType)
                 .Include(p => p.Services)
                 .Include(p => p.Images)
                 .Where(p => !p.IsDeleted)
                 .AsQueryable();
 
-            // Apply filters step-by-step
             if (filter.PropertyTypeIds?.Any() == true)
                 query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
 
@@ -139,58 +137,44 @@ namespace sakenny.Application.Services
             if (!string.IsNullOrEmpty(filter.District))
                 query = query.Where(p => p.District == filter.District);
 
-            if (filter.MinPeople.HasValue && filter.MinPeople > 0)
-                query = query.Where(p => p.PeopleCapacity >= filter.MinPeople);
+            if (filter.MinPeople.HasValue)
+                query = query.Where(p => p.PeopleCapacity >= filter.MinPeople.Value);
 
-            if (filter.MinSpace.HasValue && filter.MinSpace > 0)
-                query = query.Where(p => p.Space >= filter.MinSpace);
+            if (filter.MinSpace.HasValue)
+                query = query.Where(p => p.Space >= filter.MinSpace.Value);
 
-            if (filter.MinPrice.HasValue && filter.MinPrice > 0)
+            if (filter.MinPrice.HasValue)
                 query = query.Where(p => p.Price >= filter.MinPrice.Value);
 
-            if (filter.MaxPrice.HasValue && filter.MaxPrice > 0)
+            if (filter.MaxPrice.HasValue)
                 query = query.Where(p => p.Price <= filter.MaxPrice.Value);
 
-            // Apply ordering
-            if (!string.IsNullOrEmpty(filter.OrderBy))
+            query = filter.OrderBy?.ToLower() switch
             {
-                switch (filter.OrderBy.ToLower())
-                {
-                    case "price_asc":
-                        query = query.OrderBy(p => p.Price);
-                        break;
-                    case "price_desc":
-                        query = query.OrderByDescending(p => p.Price);
-                        break;
-                    case "space_asc":
-                        query = query.OrderBy(p => p.Space);
-                        break;
-                    case "space_desc":
-                        query = query.OrderByDescending(p => p.Space);
-                        break;
-                    default:
-                        query = query.OrderByDescending(p => p.Id); // fallback
-                        break;
-                }
-            }
-            else
-            {
-                query = query.OrderByDescending(p => p.Id); // fallback
-            }
+                "price_asc" => query.OrderBy(p => p.Price),
+                "price_desc" => query.OrderByDescending(p => p.Price),
+                "space_asc" => query.OrderBy(p => p.Space),
+                "space_desc" => query.OrderByDescending(p => p.Space),
+                _ => query.OrderByDescending(p => p.Id),
+            };
 
-            // Execute query so far and get list
+            // Pagination
+            query = query.Skip(filter.Skip).Take(filter.Take);
+
             var properties = await query.ToListAsync();
 
-            // Apply service filtering in-memory
-            if (filter.ServiceIds?.Any(id => id > 0) == true)
+            // In-memory filter for services
+            if (filter.ServiceIds?.Any() == true)
             {
                 properties = properties
                     .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
                     .ToList();
             }
-            // Map result to DTO and return
+
             return _mapper.Map<List<PropertyDTO>>(properties);
         }
+
+
 
         public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
         {
