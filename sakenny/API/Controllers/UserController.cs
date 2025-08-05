@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using sakenny.Application.DTO;
+using sakenny.Application.Services;
 using sakenny.Services;
 using System.Security.Claims;
 
@@ -11,15 +12,17 @@ namespace sakenny.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
-        public UserController(UserService userService)
+        private readonly GoogleAuthService _googleAuthService;
+        public UserController(UserService userService, GoogleAuthService googleAuthService)
         {
             _userService = userService;
+            _googleAuthService = googleAuthService;
         }
 
         [HttpPost("/register")]
         public async Task<IActionResult> register([FromBody] RegistrationDTO model)
         {
-            if(model == null)
+            if (model == null)
             {
                 return BadRequest("Invalid registration data.");
             }
@@ -36,7 +39,7 @@ namespace sakenny.API.Controllers
                 Select(result => result.Description).ToList());
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Host")]
         [HttpPost("/CompleteRegister")]
         public async Task<IActionResult> CompleteRegister([FromBody] RegistrationDTO model)
         {
@@ -66,7 +69,24 @@ namespace sakenny.API.Controllers
             }
             return Unauthorized(new { message = "Invalid refresh token" });
         }
-        [Authorize(Roles = "User")]
+
+        [HttpPost("/google-auth")]
+        public async Task<IActionResult> GoogleAuth([FromBody] GoogleAuthDTO model)
+        {
+            if (model == null || string.IsNullOrEmpty(model.IdToken))
+            {
+                return BadRequest("Invalid Google token.");
+            }
+
+            var tokenResponse = await _googleAuthService.GoogleSignInAsync(model);
+            if (!string.IsNullOrEmpty(tokenResponse.AccessToken))
+            {
+                return Ok(tokenResponse);
+            }
+            return Unauthorized(new { message = "Google authentication failed" });
+        }
+
+        [Authorize(Roles = "User,Host")]
         [HttpPost("ProfilePic")]
         public async Task<IActionResult> SetProfilePic([FromForm] UploadImageRequestDTO file)
         {
@@ -91,7 +111,7 @@ namespace sakenny.API.Controllers
             }
             return BadRequest("File upload failed");
         }
-        [Authorize(Roles = "User")]
+
         [HttpGet("ProfilePic")]
         public async Task<IActionResult> GetProfilePic()
         {
@@ -108,7 +128,7 @@ namespace sakenny.API.Controllers
             return File(content, contentType ?? "application/octet-stream");
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Host")]
         [HttpGet("profile")]
         public async Task<IActionResult> GetPrivateProfile()
         {
@@ -128,6 +148,7 @@ namespace sakenny.API.Controllers
         }
 
         [HttpGet("profile/{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPublicProfile(string id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -149,5 +170,115 @@ namespace sakenny.API.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
+        [HttpPost("BecomeHostRequest/")]
+        public async Task<IActionResult> BecomeHostRequest(BecomeHostRequest becomeHostRequest)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.SetIdImagesAsync(userId, becomeHostRequest);
+                if (Result.Succeeded)
+                {
+                    return Ok(new { respond = "Request is Added successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+            return BadRequest();
+        }
+        [Authorize(Roles = "User")]
+        [HttpGet("CheckBecomeHostRequest/")]
+        public async Task<IActionResult> CheckBecomeHostRequest()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.CheckBecomeHostRequest(userId);
+                if (Result)
+                {
+                    return BadRequest(new { respond = "You Already requested once" });
+                }
+                else
+                {
+                    return Ok(new { respond = "Add new Request" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("ConvertToHost/")]
+        public async Task<IActionResult> ConvertToHost()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.ConvertToHost(userId);
+                if (Result.Succeeded)
+                {
+                    return Ok(new { respond = "user converted successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+            return BadRequest();
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("DenyConvertToHost/")]
+        public async Task<IActionResult> DenyConvertToHost()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var Result = await _userService.DenyConvertToHost(userId);
+                if (Result.Succeeded)
+                {
+                    return Ok(new { respond = "Request is Added successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+            return BadRequest();
+        }
+        // [Authorize(Roles = "Admin")]
+        [HttpPost("UserHostList/")]
+        public IActionResult UserHostList()
+        {
+            try
+            {
+                var List = _userService.GetAllUserRequest();
+                return Ok(List);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { respond = ex.Message });
+            }
+        }
     }
 }

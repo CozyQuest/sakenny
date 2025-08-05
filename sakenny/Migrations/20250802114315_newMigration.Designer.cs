@@ -12,8 +12,8 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250730143201_change_status_to_enum")]
-    partial class change_status_to_enum
+    [Migration("20250802114315_newMigration")]
+    partial class newMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -356,8 +356,10 @@ namespace sakenny.Migrations
                     b.Property<decimal>("Longitude")
                         .HasColumnType("decimal(18,10)");
 
-                    b.Property<int?>("MainImageId")
-                        .HasColumnType("int");
+                    b.Property<string>("MainImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("PeopleCapacity")
                         .HasColumnType("int");
@@ -388,10 +390,6 @@ namespace sakenny.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MainImageId")
-                        .IsUnique()
-                        .HasFilter("[MainImageId] IS NOT NULL");
-
                     b.HasIndex("PropertyTypeId");
 
                     b.HasIndex("UserId");
@@ -408,7 +406,6 @@ namespace sakenny.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<string>("AdminID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("PropertyID")
@@ -423,7 +420,7 @@ namespace sakenny.Migrations
 
                     b.HasIndex("PropertyID");
 
-                    b.ToTable("PropertyPermits");
+                    b.ToTable("PropertyPermit");
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
@@ -474,8 +471,9 @@ namespace sakenny.Migrations
                     b.Property<decimal>("Longitude")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("MainImageId")
-                        .HasColumnType("int");
+                    b.Property<string>("MainImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PeopleCapacity")
                         .HasColumnType("int");
@@ -507,8 +505,6 @@ namespace sakenny.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MainImageId");
 
                     b.HasIndex("PropertyId");
 
@@ -781,11 +777,6 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.DAL.Models.Property", b =>
                 {
-                    b.HasOne("sakenny.DAL.Models.Image", "MainImage")
-                        .WithOne()
-                        .HasForeignKey("sakenny.DAL.Models.Property", "MainImageId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("sakenny.DAL.Models.PropertyType", "PropertyType")
                         .WithMany("Properties")
                         .HasForeignKey("PropertyTypeId")
@@ -798,8 +789,6 @@ namespace sakenny.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("MainImage");
-
                     b.Navigation("PropertyType");
 
                     b.Navigation("User");
@@ -808,13 +797,12 @@ namespace sakenny.Migrations
             modelBuilder.Entity("sakenny.DAL.Models.PropertyPermit", b =>
                 {
                     b.HasOne("sakenny.DAL.Models.Admin", "Admin")
-                        .WithMany("PropertyPermits")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("AdminID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("sakenny.DAL.Models.Property", "Property")
-                        .WithMany("PropertyPermits")
+                        .WithMany("PropertyPermit")
                         .HasForeignKey("PropertyID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -826,10 +814,6 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.DAL.Models.PropertySnapshot", b =>
                 {
-                    b.HasOne("sakenny.DAL.Models.Image", "MainImage")
-                        .WithMany()
-                        .HasForeignKey("MainImageId");
-
                     b.HasOne("sakenny.DAL.Models.Property", "Property")
                         .WithMany("PropertySnapshots")
                         .HasForeignKey("PropertyId");
@@ -851,8 +835,6 @@ namespace sakenny.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("MainImage");
 
                     b.Navigation("Property");
 
@@ -905,7 +887,7 @@ namespace sakenny.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
 
                     b.Navigation("PropertySnapshots");
 
@@ -927,7 +909,7 @@ namespace sakenny.Migrations
 
             modelBuilder.Entity("sakenny.DAL.Models.Admin", b =>
                 {
-                    b.Navigation("PropertyPermits");
+                    b.Navigation("PropertyPermit");
                 });
 
             modelBuilder.Entity("sakenny.DAL.Models.User", b =>

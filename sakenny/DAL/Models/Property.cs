@@ -25,7 +25,7 @@ namespace sakenny.DAL.Models
         public string UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Service> Services { get; set; } = new HashSet<Service>();
-        public virtual Image MainImage { get; set; }
+        public virtual String MainImageUrl { get; set; }
         public virtual ICollection<Image>? Images { get; set; } = new HashSet<Image>();
         public virtual ICollection<Review> ?Reviews { get; set; } = new HashSet<Review>();
         public virtual ICollection<Renting> ?Rentings { get; set; } = new HashSet<Renting>();

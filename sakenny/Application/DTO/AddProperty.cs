@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using sakenny.DAL.Models;
 
 namespace sakenny.Application.DTO
 {
@@ -58,5 +59,7 @@ namespace sakenny.Application.DTO
         public IFormFile MainImage { get; set; }
         [FromForm(Name = "images")]
         public List<IFormFile> Images { get; set; }
+
+        public HashSet<int> ServiceIds { get; set; }
     }
 }

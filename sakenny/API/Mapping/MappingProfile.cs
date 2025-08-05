@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 using sakenny.DAL.Models;
 
 namespace sakenny.API.Mapping
@@ -16,6 +17,7 @@ namespace sakenny.API.Mapping
             CreateMap<PropertyType, AddTypeDTO>().ReverseMap();
             CreateMap<PropertyType, UpdateTypeDTO>().ReverseMap();
             CreateMap<PropertyType, GetAllTypeDTO>();
+            CreateMap<User, UserOwnerDTO>();
 
 
             CreateMap<User, UserProfileDTO>()
@@ -23,11 +25,11 @@ namespace sakenny.API.Mapping
             .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
             .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
 
-           CreateMap<User, UserPublicProfileDTO>()
-            .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
-            .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
-            .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
-                
+            CreateMap<User, UserPublicProfileDTO>()
+             .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+             .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+             .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
+
             CreateMap<Property, PropertyCheckoutDTO>()
                 .ForMember(dest => dest.MainImageURL,
                            opt => opt.MapFrom(src => src.MainImageUrl))
@@ -49,6 +51,8 @@ namespace sakenny.API.Mapping
             CreateMap<RegistrationDTO, User>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
+            CreateMap<Property, GetAllPropertiesDTO>();
+
             CreateMap<Property, PropertyDTO>()
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
                     src.Images != null ? src.Images.Select(img => img.Url).ToList() : new List<string>()));
@@ -65,6 +69,31 @@ namespace sakenny.API.Mapping
                 .ForMember(dest => dest.PropertyPermit, opt => opt.Ignore())
                 .ForMember(dest => dest.Property, opt => opt.Ignore())
                 .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.MainImageUrl));
+
+
+            CreateMap<UpdatePropertyDTO, Property>()
+              .ForMember(dest => dest.MainImageUrl, opt => opt.Ignore())
+              .ForMember(dest => dest.Images, opt => opt.Ignore())
+              .ForAllMembers(opts => opts.Condition((src, dest, srcMember) =>
+                 srcMember != null && srcMember.ToString() != "0"));
+
+            CreateMap<Property, PropertySnapshot>()
+               .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+
+            CreateMap<PostReviewDTO, Review>();
+
+            CreateMap<UserHostRequestDTO, User>();
+
+            CreateMap<User, UserHostRequestDTO>()
+                .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+
+
+
+
 
         }
     }

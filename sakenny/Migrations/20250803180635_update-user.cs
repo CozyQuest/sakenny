@@ -5,21 +5,15 @@
 namespace sakenny.Migrations
 {
     /// <inheritdoc />
-    public partial class addnationalid : Migration
+    public partial class updateuser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "UrlIdBack",
+            migrationBuilder.AddColumn<bool>(
+                name: "HostRequest",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "UrlIdFront",
-                table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "bit",
                 nullable: true);
         }
 
@@ -27,11 +21,7 @@ namespace sakenny.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "UrlIdBack",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropColumn(
-                name: "UrlIdFront",
+                name: "HostRequest",
                 table: "AspNetUsers");
         }
     }
