@@ -42,6 +42,7 @@ namespace sakenny
             builder.Services.AddScoped<IReviewService, sakenny.Application.Services.ReviewService>();
             builder.Services.AddScoped<IRentedPropertyService, RentedPropertyService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IPasswordService, PasswordService>();
 
             builder.Services.AddCors(options =>
             {
