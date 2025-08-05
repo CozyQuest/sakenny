@@ -113,68 +113,6 @@ namespace sakenny.Application.Services
             }
         }
 
-        public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
-        {
-            filter ??= new PropertyFilterDTO();
-
-            var query = _context.Properties
-                .AsNoTracking()
-                .Include(p => p.PropertyType)
-                .Include(p => p.Services)
-                .Include(p => p.Images)
-                .Where(p => !p.IsDeleted)
-                .AsQueryable();
-
-            if (filter.PropertyTypeIds?.Any() == true)
-                query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
-
-            if (!string.IsNullOrEmpty(filter.Country))
-                query = query.Where(p => p.Country == filter.Country);
-
-            if (!string.IsNullOrEmpty(filter.City))
-                query = query.Where(p => p.City == filter.City);
-
-            if (!string.IsNullOrEmpty(filter.District))
-                query = query.Where(p => p.District == filter.District);
-
-            if (filter.MinPeople.HasValue)
-                query = query.Where(p => p.PeopleCapacity >= filter.MinPeople.Value);
-
-            if (filter.MinSpace.HasValue)
-                query = query.Where(p => p.Space >= filter.MinSpace.Value);
-
-            if (filter.MinPrice.HasValue)
-                query = query.Where(p => p.Price >= filter.MinPrice.Value);
-
-            if (filter.MaxPrice.HasValue)
-                query = query.Where(p => p.Price <= filter.MaxPrice.Value);
-
-            query = filter.OrderBy?.ToLower() switch
-            {
-                "price_asc" => query.OrderBy(p => p.Price),
-                "price_desc" => query.OrderByDescending(p => p.Price),
-                "space_asc" => query.OrderBy(p => p.Space),
-                "space_desc" => query.OrderByDescending(p => p.Space),
-                _ => query.OrderByDescending(p => p.Id),
-            };
-
-            // Pagination
-            query = query.Skip(filter.Skip).Take(filter.Take);
-
-            var properties = await query.ToListAsync();
-
-            // In-memory filter for services
-            if (filter.ServiceIds?.Any() == true)
-            {
-                properties = properties
-                    .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
-                    .ToList();
-            }
-
-            return _mapper.Map<List<PropertyDTO>>(properties);
-        }
-
-
 
         public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
         {
@@ -368,28 +306,91 @@ namespace sakenny.Application.Services
             return result;
         }
 
-        public async Task<PagedResultDTO<GetAllPropertiesDTO>> GetAllPropertiesAsync(PaginationDTO pagination)
+
+
+        public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
-            var allProperties = await _unitOfWork.Properties.GetAllAsync(p => !p.IsDeleted);
+            filter ??= new PropertyFilterDTO(); // Ensure filter is not null
 
-            if (allProperties == null || !allProperties.Any())
-                return new PagedResultDTO<GetAllPropertiesDTO>();
+            // Start building query from Properties table with necessary Includes
+            var query = _context.Properties
+                .AsNoTracking() // No tracking since this is a read-only operation
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Images)
+                .Where(p => !p.IsDeleted)
+                .AsQueryable();
 
-            var totalCount = allProperties.Count();
+            // Apply filters step-by-step
+            if (filter.PropertyTypeIds?.Any() == true)
+                query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
 
-            var pagedProperties = allProperties
-                .Skip((pagination.PageNumber - 1) * pagination.PageSize)
-                .Take(pagination.PageSize)
-                .ToList();
+            if (!string.IsNullOrEmpty(filter.Country))
+                query = query.Where(p => p.Country == filter.Country);
 
-            return new PagedResultDTO<GetAllPropertiesDTO>
+            if (!string.IsNullOrEmpty(filter.City))
+                query = query.Where(p => p.City == filter.City);
+
+            if (!string.IsNullOrEmpty(filter.District))
+                query = query.Where(p => p.District == filter.District);
+
+            if (filter.MinPeople.HasValue && filter.MinPeople > 0)
+                query = query.Where(p => p.PeopleCapacity >= filter.MinPeople);
+
+            if (filter.MinSpace.HasValue && filter.MinSpace > 0)
+                query = query.Where(p => p.Space >= filter.MinSpace);
+
+            if (filter.MinPrice.HasValue && filter.MinPrice > 0)
+                query = query.Where(p => p.Price >= filter.MinPrice.Value);
+
+            if (filter.MaxPrice.HasValue && filter.MaxPrice > 0)
+                query = query.Where(p => p.Price <= filter.MaxPrice.Value);
+
+            // Apply ordering
+            if (!string.IsNullOrEmpty(filter.OrderBy))
             {
-                Items = _mapper.Map<List<GetAllPropertiesDTO>>(pagedProperties),
-                TotalCount = totalCount,
-                PageNumber = pagination.PageNumber,
-                PageSize = pagination.PageSize
-            };
+                switch (filter.OrderBy.ToLower())
+                {
+                    case "price_asc":
+                        query = query.OrderBy(p => p.Price);
+                        break;
+                    case "price_desc":
+                        query = query.OrderByDescending(p => p.Price);
+                        break;
+                    case "space_asc":
+                        query = query.OrderBy(p => p.Space);
+                        break;
+                    case "space_desc":
+                        query = query.OrderByDescending(p => p.Space);
+                        break;
+                    default:
+                        query = query.OrderByDescending(p => p.Id); // fallback
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.Id); // fallback
+            }
+
+            // Execute query so far and get list
+            var properties = await query.ToListAsync();
+
+            // ? Apply service filtering in-memory
+            if (filter.ServiceIds?.Any(id => id > 0) == true)
+            {
+                properties = properties
+                    .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
+                    .ToList();
+            }
+
+            // Map result to DTO and return
+            return _mapper.Map<List<PropertyDTO>>(properties);
         }
+
+
+
+
 
 
 

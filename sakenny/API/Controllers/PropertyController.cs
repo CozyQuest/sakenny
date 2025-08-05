@@ -41,14 +41,6 @@ namespace sakenny.API.Controllers
             return BadRequest("Can't add property");
         }
 
-        
-        [HttpPost("filter")]
-        public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
-        {
-            var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
-            return Ok(result);
-        }
-
 
 
         [HttpPut]
@@ -126,10 +118,12 @@ namespace sakenny.API.Controllers
             return Ok(properties);
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllPropertiesAsync([FromQuery] PaginationDTO pagination)
+        [HttpPost("filter")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
         {
-            var result = await _propertyService.GetAllPropertiesAsync(pagination);
+           
+            var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
             return Ok(result);
         }
 
