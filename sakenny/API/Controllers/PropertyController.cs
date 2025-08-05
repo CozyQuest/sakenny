@@ -116,7 +116,7 @@ namespace sakenny.API.Controllers
 
         [HttpGet("top-rated")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<OwnedPropertyDTO>>> GetTopRatedProperties()
+        public async Task<ActionResult<List<HomeTopRatedPropertyDTO>>> GetTopRatedProperties()
         {
             var properties = await _propertyService.GetTopRatedPropertiesAsync();
             return Ok(properties);
