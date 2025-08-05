@@ -97,9 +97,21 @@ namespace sakenny.Application.Services
         {
             var userRoles = await _unitOfWork.userManager.GetRolesAsync(user);
 
+            // Cast to custom User to access FirstName and LastName
+            var customUser = user as sakenny.DAL.Models.User;
+            
+            // Construct full name, fallback to email if name is empty
+            var fullName = "";
+            if (customUser != null && !string.IsNullOrWhiteSpace(customUser.FirstName) && !string.IsNullOrWhiteSpace(customUser.LastName))
+            {
+                fullName = $"{customUser.FirstName} {customUser.LastName}".Trim();
+            }
+            
+            var nameClaimValue = !string.IsNullOrWhiteSpace(fullName) ? fullName : (user.Email ?? "");
+
             var authClaims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
+                new Claim(JwtRegisteredClaimNames.Name, nameClaimValue),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
