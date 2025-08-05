@@ -23,14 +23,25 @@ namespace sakenny.Application.Services
             var user = await _unitOfWork.userManager.FindByEmailAsync(model.Email);
             if (user != null && await _unitOfWork.userManager.CheckPasswordAsync(user, model.Password))
             {
-                var accessToken = await GenerateAccessTokenAsync(user);
+                // Calculate expiry time for RememberMe
+                var tokenExpiry = model.RememberMe 
+                    ? DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:RememberMeExpiryMinutes"]!))
+                    : DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!));
+                
+                var accessToken = await GenerateAccessTokenAsync(user, tokenExpiry);
                 var refreshToken = GenerateRefreshToken();
 
                 // Store refresh token in database
                 await _unitOfWork.userManager.SetAuthenticationTokenAsync(user, "RefreshTokenProvider", "RefreshToken", refreshToken);
 
-                var accessTokenExpiry = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!));
-                var refreshTokenExpiry = DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:RefreshTokenExpiryDays"]!));
+                // Use RememberMe to determine token expiry
+                var accessTokenExpiry = model.RememberMe 
+                    ? DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:RememberMeExpiryMinutes"]!))
+                    : DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!));
+                
+                var refreshTokenExpiry = model.RememberMe
+                    ? DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:RememberMeRefreshTokenExpiryDays"]!))
+                    : DateTime.UtcNow.AddDays(double.Parse(_configuration["Jwt:RefreshTokenExpiryDays"]!));
 
                 return new TokenResponseDTO
                 {
@@ -82,7 +93,7 @@ namespace sakenny.Application.Services
                 RefreshTokenExpiry = refreshTokenExpiry
             };
         }
-        private async Task<string> GenerateAccessTokenAsync(IdentityUser user)
+        private async Task<string> GenerateAccessTokenAsync(IdentityUser user, DateTime? customExpiry = null)
         {
             var userRoles = await _unitOfWork.userManager.GetRolesAsync(user);
 
@@ -97,7 +108,7 @@ namespace sakenny.Application.Services
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
+                expires: customExpiry ?? DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
