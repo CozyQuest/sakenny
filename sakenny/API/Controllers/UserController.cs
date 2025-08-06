@@ -267,7 +267,7 @@ namespace sakenny.API.Controllers
             }
             return BadRequest();
         }
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("UserHostList/")]
         public IActionResult UserHostList()
         {
