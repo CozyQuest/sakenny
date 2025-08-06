@@ -417,8 +417,20 @@ namespace sakenny.Application.Services
 
         }
 
+        public async Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize)
+        {
+            var properties = await _context.Properties
+                .Include(p => p.Images)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Reviews)
+                .Where(p => p.UserId == userId && !p.IsDeleted)
+                .Skip((PageNumber - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
 
-
+            return _mapper.Map<IEnumerable<HostedPropertyDTO>>(properties);
+        }
 
     }
 }

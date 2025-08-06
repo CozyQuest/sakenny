@@ -37,7 +37,7 @@ namespace sakenny.Application.Services
             user.FirstName = model.Fname;
             user.LastName = model.Lname;
             user.Email = model.Email;
-            user.PhoneNumber = model.Phone;
+            user.PhoneNumber = model.PhoneNumber;
             user.UrlProfilePicture = model.ProfilePicUrl;
             var result = await _unitOfWork.SaveChangesAsync();
             if (result <= 0)
