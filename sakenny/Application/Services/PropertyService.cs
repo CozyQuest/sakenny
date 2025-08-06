@@ -243,11 +243,11 @@ namespace sakenny.Application.Services
             return _mapper.Map<PropertyDTO>(property);
         }
 
-        public async Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync()
+        public async Task<List<HomeTopRatedPropertyDTO>> GetTopRatedPropertiesAsync()
         {
             var includes = new Expression<Func<Property, object>>[]
             {
-              p => p.Images
+                p => p.Images
             };
 
             var properties = await _unitOfWork.Properties.GetAllAsync(
@@ -255,31 +255,41 @@ namespace sakenny.Application.Services
                 includes: includes
             );
 
-            var topRated = new List<OwnedPropertyDTO>();
+            var result = new List<HomeTopRatedPropertyDTO>();
 
             foreach (var property in properties)
             {
-                var averageRating = await _reviewService.GetAverageRatingForPropertyAsync(property.Id);
+                // Use review service to get average rating and count
+                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(property.Id);
+                var reviews = await _unitOfWork.Reviews.GetAllAsync(r =>
+                    r.PropertyId == property.Id &&
+                    !r.IsDeleted &&
+                    r.Rate >= 1 && r.Rate <= 5
+                );
 
-                var dto = new OwnedPropertyDTO
+                var reviewsCount = reviews.Count();
+
+                var dto = new HomeTopRatedPropertyDTO
                 {
-                    Id = property.Id,
-                    Title = property.Title,
-                    MainImageUrl = property.MainImageUrl,
-                    PeopleCapacity = property.PeopleCapacity,
-                    Space = property.Space,
-                    RoomCount = property.RoomCount,
-                    BathroomCount = property.BathroomCount,
-                    Price = property.Price,
-                    AverageRating = averageRating
+                    Id = property.Id.ToString(),
+                    Name = property.Title,
+                    Image = property.MainImageUrl,
+                    RentPerDay = property.Price,
+                    Rating = avgRating,
+                    ReviewsCount = reviewsCount,
+                    IsFavorite = false,
+                    Area = property.Space,
+                    Bathrooms = property.BathroomCount,
+                    Bedrooms = property.RoomCount,
+                    Location = $"{property.City}, {property.Country}"
                 };
 
-                topRated.Add(dto);
+                result.Add(dto);
             }
 
-            return topRated
-                .OrderByDescending(p => p.AverageRating)
-                .ThenByDescending(p => p.Price)
+            return result
+                .OrderByDescending(p => p.Rating)
+                .ThenByDescending(p => p.RentPerDay)
                 .Take(10)
                 .ToList();
         }

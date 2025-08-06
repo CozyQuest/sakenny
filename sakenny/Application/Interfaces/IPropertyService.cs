@@ -16,6 +16,8 @@ namespace sakenny.Application.Interfaces
         Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize);
         Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync();
         Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter);
-        Task<IEnumerable<GetAllPropertiesDTO>> GetAllPropertiesAsync();
+        Task<List<HomeTopRatedPropertyDTO>> GetTopRatedPropertiesAsync();
+        Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync();
+
     }
 }
