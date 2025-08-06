@@ -32,6 +32,11 @@ namespace sakenny.API.Mapping
              .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture))
              .ForMember(dest => dest.Role, opt => opt.Ignore());
 
+            CreateMap<User, UserPublicProfileDTO>()
+             .ForMember(dest => dest.Fname, opt => opt.MapFrom(src => src.FirstName))
+             .ForMember(dest => dest.Lname, opt => opt.MapFrom(src => src.LastName))
+             .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture));
+
             CreateMap<Property, PropertyCheckoutDTO>()
                 .ForMember(dest => dest.MainImageURL,
                            opt => opt.MapFrom(src => src.MainImageUrl))
@@ -93,11 +98,22 @@ namespace sakenny.API.Mapping
                 .ForMember(dest => dest.ProfilePicUrl, opt => opt.MapFrom(src => src.UrlProfilePicture))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
+            CreateMap<GetAllPropertiesDTO, Property>();
+            CreateMap<PropertyFilterDTO, Property>();
 
-                  
-
-
-
+            CreateMap<Property, GetAllPropertiesDTO>()
+    .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src =>
+        src.Images != null && src.Images.Any() ? src.Images.First().Url : string.Empty))
+    .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src =>
+        src.Images != null ? src.Images.Select(img => img.Url).ToList() : new List<string>()))
+    .ForMember(dest => dest.PropertyTypeName, opt => opt.MapFrom(src =>
+        src.PropertyType != null ? src.PropertyType.Name : string.Empty))
+    .ForMember(dest => dest.ServiceNames, opt => opt.MapFrom(src =>
+        src.Services != null ? src.Services.Select(s => s.Name).ToList() : new List<string>()))
+    .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
+        src.Reviews != null && src.Reviews.Any() ? (double?)Math.Round(src.Reviews.Average(r => r.Rate), 2) : null))
+    .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src =>
+        src.Reviews != null ? src.Reviews.Count : 0));
 
 
         }

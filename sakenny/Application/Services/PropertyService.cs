@@ -113,84 +113,6 @@ namespace sakenny.Application.Services
             }
         }
 
-        public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
-        {
-            filter ??= new PropertyFilterDTO(); // Ensure filter is not null
-
-            // Start building query from Properties table with necessary Includes
-            var query = _context.Properties
-                .AsNoTracking() // No tracking since this is a read-only operation
-                .Include(p => p.PropertyType)
-                .Include(p => p.Services)
-                .Include(p => p.Images)
-                .Where(p => !p.IsDeleted)
-                .AsQueryable();
-
-            // Apply filters step-by-step
-            if (filter.PropertyTypeIds?.Any() == true)
-                query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
-
-            if (!string.IsNullOrEmpty(filter.Country))
-                query = query.Where(p => p.Country == filter.Country);
-
-            if (!string.IsNullOrEmpty(filter.City))
-                query = query.Where(p => p.City == filter.City);
-
-            if (!string.IsNullOrEmpty(filter.District))
-                query = query.Where(p => p.District == filter.District);
-
-            if (filter.MinPeople.HasValue && filter.MinPeople > 0)
-                query = query.Where(p => p.PeopleCapacity >= filter.MinPeople);
-
-            if (filter.MinSpace.HasValue && filter.MinSpace > 0)
-                query = query.Where(p => p.Space >= filter.MinSpace);
-
-            if (filter.MinPrice.HasValue && filter.MinPrice > 0)
-                query = query.Where(p => p.Price >= filter.MinPrice.Value);
-
-            if (filter.MaxPrice.HasValue && filter.MaxPrice > 0)
-                query = query.Where(p => p.Price <= filter.MaxPrice.Value);
-
-            // Apply ordering
-            if (!string.IsNullOrEmpty(filter.OrderBy))
-            {
-                switch (filter.OrderBy.ToLower())
-                {
-                    case "price_asc":
-                        query = query.OrderBy(p => p.Price);
-                        break;
-                    case "price_desc":
-                        query = query.OrderByDescending(p => p.Price);
-                        break;
-                    case "space_asc":
-                        query = query.OrderBy(p => p.Space);
-                        break;
-                    case "space_desc":
-                        query = query.OrderByDescending(p => p.Space);
-                        break;
-                    default:
-                        query = query.OrderByDescending(p => p.Id); // fallback
-                        break;
-                }
-            }
-            else
-            {
-                query = query.OrderByDescending(p => p.Id); // fallback
-            }
-
-            // Execute query so far and get list
-            var properties = await query.ToListAsync();
-
-            // Apply service filtering in-memory
-            if (filter.ServiceIds?.Any(id => id > 0) == true)
-            {
-                properties = properties
-                    .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
-                    .ToList();
-            }
-            // Map result to DTO and return
-            return _mapper.Map<List<PropertyDTO>>(properties);
-        }
 
         public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
         {
@@ -263,6 +185,7 @@ namespace sakenny.Application.Services
 
             return _mapper.Map<PropertyDTO>(property);
         }
+
 
         public async Task<PropertyDTO> GetPropertyDetailsAsync(int id)
         {
@@ -357,51 +280,105 @@ namespace sakenny.Application.Services
 
             return result;
         }
-        public async Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize)
+
+
+
+        public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
+            filter ??= new PropertyFilterDTO(); // Ensure filter is not null
 
-            var properties = await _unitOfWork.Properties.GetAllAsync(
-                p => p.UserId == userId && !p.IsDeleted,
-                includes: p => p.Images
-            );
+            // Start building query from Properties table with necessary Includes
+            var query = _context.Properties
+                .AsNoTracking() // No tracking since this is a read-only operation
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Images)
+                .Where(p => !p.IsDeleted)
+                .AsQueryable();
 
-            if (properties == null || !properties.Any())
-                return new List<HostedPropertyDTO>();
+            // Apply filters step-by-step
+            if (filter.PropertyTypeIds?.Any() == true)
+                query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
 
-            var result = new List<HostedPropertyDTO>();
+            if (!string.IsNullOrEmpty(filter.Country))
+                query = query.Where(p => p.Country == filter.Country);
 
-            foreach (var prop in properties)
+            if (!string.IsNullOrEmpty(filter.City))
+                query = query.Where(p => p.City == filter.City);
+
+            if (!string.IsNullOrEmpty(filter.District))
+                query = query.Where(p => p.District == filter.District);
+
+            if (filter.MinPeople.HasValue && filter.MinPeople > 0)
+                query = query.Where(p => p.PeopleCapacity >= filter.MinPeople);
+
+            if (filter.MinSpace.HasValue && filter.MinSpace > 0)
+                query = query.Where(p => p.Space >= filter.MinSpace);
+
+            if (filter.MinPrice.HasValue && filter.MinPrice > 0)
+                query = query.Where(p => p.Price >= filter.MinPrice.Value);
+
+            if (filter.MaxPrice.HasValue && filter.MaxPrice > 0)
+                query = query.Where(p => p.Price <= filter.MaxPrice.Value);
+
+            // Apply ordering
+            if (!string.IsNullOrEmpty(filter.OrderBy))
             {
-                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
-                var reviews = await _reviewService.GetReviewsForPropertyAsync(prop.Id);
-                var reviewCount = reviews.Count();
-
-                result.Add(new HostedPropertyDTO
+                switch (filter.OrderBy.ToLower())
                 {
-                    Id = prop.Id,
-                    Title = prop.Title,
-                    ImageUrl = prop.MainImageUrl,
-                    Area = prop.Space,
-                    Beds = prop.RoomCount,
-                    Baths = prop.BathroomCount,
-                    Price = prop.Price,
-                    Rating = avgRating,
-                    ReviewCount = reviewCount,
-                    Location = $"{prop.City}, {prop.Country}"
-                });
+                    case "price_asc":
+                        query = query.OrderBy(p => p.Price);
+                        break;
+                    case "price_desc":
+                        query = query.OrderByDescending(p => p.Price);
+                        break;
+                    case "space_asc":
+                        query = query.OrderBy(p => p.Space);
+                        break;
+                    case "space_desc":
+                        query = query.OrderByDescending(p => p.Space);
+                        break;
+                    default:
+                        query = query.OrderByDescending(p => p.Id); // fallback
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.Id); // fallback
             }
 
-            return result.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
+            // Execute query so far and get list
+            var properties = await query.ToListAsync();
+
+            // ? Apply service filtering in-memory
+            if (filter.ServiceIds?.Any(id => id > 0) == true)
+            {
+                properties = properties
+                    .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
+                    .ToList();
+            }
+
+            // Map result to DTO and return
+            return _mapper.Map<List<PropertyDTO>>(properties);
         }
 
-        public async Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync()
+
+
+        public async Task<IEnumerable<GetAllPropertiesDTO>> GetAllPropertiesAsync()
         {
-            var properties = await _unitOfWork.Properties.GetAllAsync();
-            if (properties == null || !properties.Any())
-                return new List<GetAllPropertiesDTO>();
+            var properties = await _context.Properties
+                .Include(p => p.Images)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Reviews)
+                .ToListAsync();
 
-            return _mapper.Map<List<GetAllPropertiesDTO>>(properties);
+            return _mapper.Map<IEnumerable<GetAllPropertiesDTO>>(properties);
+
         }
+
+
 
 
     }
