@@ -12,8 +12,8 @@ using sakenny.DAL;
 namespace sakenny.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250803174909_seeded-data")]
-    partial class seededdata
+    [Migration("20250803180635_update-user")]
+    partial class updateuser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -656,6 +656,9 @@ namespace sakenny.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("HostRequest")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()

@@ -6,5 +6,7 @@
         public string Fname { get; set; }
         public string Lname { get; set; }
         public string ProfilePicUrl { get; set; }
+
+        public string Role { get; set; }
     }
 }

@@ -5,6 +5,7 @@ namespace sakenny.DAL.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
+        IBaseRepository<User> Users { get; }
         IDeleteUpdate<Property> Properties { get; }
         IDeleteUpdate<Image> Images { get; }
         IBaseRepository<Renting> Rentings { get; }

@@ -14,6 +14,9 @@ using sakenny.ServiceExtensions;
 using sakenny.Services;
 using sakenny.Models;
 using Stripe;
+using sakenny.Application.DTO;
+using Google.Apis.Auth;
+using System.Security.Cryptography;
 
 namespace sakenny
 {
@@ -41,6 +44,9 @@ namespace sakenny
             builder.Services.AddScoped<ICheckoutService, sakenny.Application.Services.CheckoutService>();
             builder.Services.AddScoped<IReviewService, sakenny.Application.Services.ReviewService>();
             builder.Services.AddScoped<IRentedPropertyService, RentedPropertyService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<GoogleAuthService>();
+            builder.Services.AddScoped<IPasswordService, PasswordService>();
 
             builder.Services.AddCors(options =>
             {

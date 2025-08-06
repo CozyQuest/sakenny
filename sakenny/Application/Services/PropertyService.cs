@@ -1,23 +1,13 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 using sakenny.Application.Interfaces;
 using sakenny.DAL;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using sakenny.Application.DTO;
-using sakenny.Application.Interfaces;
-using sakenny.DAL.Interfaces;
-using sakenny.DAL.Models;
-using Stripe;
+
 
 namespace sakenny.Application.Services
 {
@@ -29,7 +19,7 @@ namespace sakenny.Application.Services
         private readonly IImageService _imageService;
         private readonly IReviewService _reviewService;
 
-        public PropertyService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, IReviewService reviewService,ApplicationDBContext context)
+        public PropertyService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService, IReviewService reviewService, ApplicationDBContext context)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -125,18 +115,20 @@ namespace sakenny.Application.Services
 
         public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
+            filter ??= new PropertyFilterDTO(); // Ensure filter is not null
+
+            // Start building query from Properties table with necessary Includes
             var query = _context.Properties
+                .AsNoTracking() // No tracking since this is a read-only operation
                 .Include(p => p.PropertyType)
                 .Include(p => p.Services)
                 .Include(p => p.Images)
+                .Where(p => !p.IsDeleted)
                 .AsQueryable();
 
-            // ? Apply filters
+            // Apply filters step-by-step
             if (filter.PropertyTypeIds?.Any() == true)
                 query = query.Where(p => filter.PropertyTypeIds.Contains(p.PropertyTypeId));
-
-            if (filter.ServiceIds?.Any() == true)
-                query = query.Where(p => p.Services.Any(s => filter.ServiceIds.Contains(s.Id)));
 
             if (!string.IsNullOrEmpty(filter.Country))
                 query = query.Where(p => p.Country == filter.Country);
@@ -147,19 +139,19 @@ namespace sakenny.Application.Services
             if (!string.IsNullOrEmpty(filter.District))
                 query = query.Where(p => p.District == filter.District);
 
-            if (filter.MinPeople.HasValue)
+            if (filter.MinPeople.HasValue && filter.MinPeople > 0)
                 query = query.Where(p => p.PeopleCapacity >= filter.MinPeople);
 
-            if (filter.MinSpace.HasValue)
+            if (filter.MinSpace.HasValue && filter.MinSpace > 0)
                 query = query.Where(p => p.Space >= filter.MinSpace);
 
-            if (filter.MinPrice.HasValue)
+            if (filter.MinPrice.HasValue && filter.MinPrice > 0)
                 query = query.Where(p => p.Price >= filter.MinPrice.Value);
 
-            if (filter.MaxPrice.HasValue)
+            if (filter.MaxPrice.HasValue && filter.MaxPrice > 0)
                 query = query.Where(p => p.Price <= filter.MaxPrice.Value);
 
-            // ? Ordering
+            // Apply ordering
             if (!string.IsNullOrEmpty(filter.OrderBy))
             {
                 switch (filter.OrderBy.ToLower())
@@ -176,57 +168,77 @@ namespace sakenny.Application.Services
                     case "space_desc":
                         query = query.OrderByDescending(p => p.Space);
                         break;
-                        // Add more cases for rating, review count, etc.
+                    default:
+                        query = query.OrderByDescending(p => p.Id); // fallback
+                        break;
                 }
             }
+            else
+            {
+                query = query.OrderByDescending(p => p.Id); // fallback
+            }
 
+            // Execute query so far and get list
             var properties = await query.ToListAsync();
+
+            // Apply service filtering in-memory
+            if (filter.ServiceIds?.Any(id => id > 0) == true)
+            {
+                properties = properties
+                    .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
+                    .ToList();
+            }
+            // Map result to DTO and return
             return _mapper.Map<List<PropertyDTO>>(properties);
         }
 
         public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
         {
-            var property = await _unitOfWork.Properties.GetByIdAsync(id);
+            var property = await _unitOfWork.Properties.GetByIdAsync(id, p => p.Services, p => p.Images);
             if (property == null || property.IsDeleted)
                 throw new KeyNotFoundException("Property not found.");
 
             if (property.UserId != userId)
                 throw new UnauthorizedAccessException("You do not have permission to update this property.");
 
-            var existingMainImageUrl = property.MainImageUrl;
-
             _mapper.Map(model, property);
+
+            if (model.ServiceIds != null)
+            {
+                property.Services.Clear();
+                foreach (var serviceId in model.ServiceIds)
+                {
+                    var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
+                    if (service != null && !service.IsDeleted)
+                    {
+                        property.Services.Add(service);
+                    }
+                }
+            }
 
             if (model.MainImage != null)
             {
                 var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
                 property.MainImageUrl = newMainImageUrl;
 
-                await _unitOfWork.Images.AddAsync(new Image
+                property.Images.Add(new Image
                 {
                     Url = newMainImageUrl,
                     PropertyId = property.Id
                 });
             }
-            else
-            {
-                property.MainImageUrl = existingMainImageUrl; 
-            }
 
             if (model.Images != null && model.Images.Any())
             {
-                var imageUrls = await _imageService.UploadImagesAsync(model.Images);
-
-                foreach (var imageUrl in imageUrls)
+                property.Images.Clear();
+                var newImageUrls = await _imageService.UploadImagesAsync(model.Images);
+                foreach (var imageUrl in newImageUrls)
                 {
-                    var imageEntity = new Image
+                    property.Images.Add(new Image
                     {
                         Url = imageUrl,
                         PropertyId = property.Id
-                    };
-                    property.Images ??= new List<Image>();
-                    property.Images.Add(imageEntity);
-                    await _unitOfWork.Images.AddAsync(imageEntity);
+                    });
                 }
             }
 
@@ -240,12 +252,7 @@ namespace sakenny.Application.Services
                 PropertySnapshot = snapshot
             };
 
-            var images = await _unitOfWork.Images.GetAllAsync(img => img.PropertyId == property.Id);
-            property.Images = images.ToList();
-
-
             snapshot.PropertyPermit = permit;
-
             property.PropertySnapshots.Add(snapshot);
             property.PropertyPermits.Add(permit);
 
@@ -310,7 +317,7 @@ namespace sakenny.Application.Services
 
             return topRated
                 .OrderByDescending(p => p.AverageRating)
-                .ThenByDescending(p => p.Price) 
+                .ThenByDescending(p => p.Price)
                 .Take(10)
                 .ToList();
         }
@@ -350,7 +357,51 @@ namespace sakenny.Application.Services
 
             return result;
         }
+        public async Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize)
+        {
 
+            var properties = await _unitOfWork.Properties.GetAllAsync(
+                p => p.UserId == userId && !p.IsDeleted,
+                includes: p => p.Images
+            );
+
+            if (properties == null || !properties.Any())
+                return new List<HostedPropertyDTO>();
+
+            var result = new List<HostedPropertyDTO>();
+
+            foreach (var prop in properties)
+            {
+                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
+                var reviews = await _reviewService.GetReviewsForPropertyAsync(prop.Id);
+                var reviewCount = reviews.Count();
+
+                result.Add(new HostedPropertyDTO
+                {
+                    Id = prop.Id,
+                    Title = prop.Title,
+                    ImageUrl = prop.MainImageUrl,
+                    Area = prop.Space,
+                    Beds = prop.RoomCount,
+                    Baths = prop.BathroomCount,
+                    Price = prop.Price,
+                    Rating = avgRating,
+                    ReviewCount = reviewCount,
+                    Location = $"{prop.City}, {prop.Country}"
+                });
+            }
+
+            return result.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
+        }
+
+        public async Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync()
+        {
+            var properties = await _unitOfWork.Properties.GetAllAsync();
+            if (properties == null || !properties.Any())
+                return new List<GetAllPropertiesDTO>();
+
+            return _mapper.Map<List<GetAllPropertiesDTO>>(properties);
+        }
 
 
     }

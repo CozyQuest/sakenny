@@ -44,6 +44,9 @@ namespace sakenny.Application.DTO
         [FromForm(Name = "images")]
         public List<IFormFile>? Images { get; set; }
 
+        [FromForm(Name = "ServiceIds")]
+        public HashSet<int>? ServiceIds { get; set; }
+
     }
 }
 

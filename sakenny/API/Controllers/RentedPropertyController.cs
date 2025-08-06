@@ -33,5 +33,32 @@ namespace sakenny.API.Controllers
             var rentedProperties = await _rentingService.GetRentedPropertiesByUserAsync(userId);
             return Ok(rentedProperties);
         }
+
+        [HttpGet]
+        [Route("/EarningDashboard/{hostId}")]
+        [Authorize(Roles = "Host")]
+        public async Task<ActionResult<HostEarningsDTO>> GetEarnings(string hostId)
+        {
+            var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (loggedInUserId != hostId)
+                return Forbid();
+
+            var earnings = await _rentingService.GetHostEarningsAsync(hostId);
+
+            if (earnings == null || earnings.Items.Count == 0)
+            {
+                return Ok(new HostEarningsDTO
+                {
+                    TotalProfit = 0,
+                    Items = new List<EarningsItemDTO>()
+                });
+            }
+
+            return Ok(earnings);
+        }
+
+
+
     }
 }
