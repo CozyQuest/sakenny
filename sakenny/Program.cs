@@ -40,6 +40,7 @@ namespace sakenny
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IDeleteUpdate<>), typeof(DeleteUpdateRepository<>));
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<UserUpdateDeleteProfileService>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<ICheckoutService, sakenny.Application.Services.CheckoutService>();
             builder.Services.AddScoped<IReviewService, sakenny.Application.Services.ReviewService>();

@@ -115,6 +115,14 @@ namespace sakenny.API.Mapping
     .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src =>
         src.Reviews != null ? src.Reviews.Count : 0));
 
+            CreateMap<UserProfileDTO, User>()
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Fname))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.Lname))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.UrlProfilePicture, opt => opt.MapFrom(src => src.ProfilePicUrl)).ReverseMap();
+
+
 
         }
     }
