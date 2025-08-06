@@ -34,5 +34,20 @@ namespace sakenny.Application.Services
             }
             return result;
         }
+        public async Task<IdentityResult> ForgetPasswordAsync(ForgetPasswordDTO forgetPasswordDTO)
+        {
+            var user = await _unitOfWork.userManager.FindByEmailAsync(forgetPasswordDTO.Email);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with email {forgetPasswordDTO.Email} was not found.");
+            }
+            var token = await _unitOfWork.userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _unitOfWork.userManager.ResetPasswordAsync(user, token, forgetPasswordDTO.NewPassword);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+            return result;
+        }
     }
 }
