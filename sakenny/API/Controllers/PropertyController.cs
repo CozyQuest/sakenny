@@ -19,7 +19,7 @@ namespace sakenny.API.Controllers
             _propertyService = propertyService;
         }
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Host")]
         [Route("/AddProperty")]
         public async Task<IActionResult> AddProperty([FromForm] AddPropertyDTO model)
         {
@@ -48,7 +48,7 @@ namespace sakenny.API.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Host")]
         [Route("/UpdateProperty/{id}")]
         public async Task<IActionResult> UpdateProperty(int id, [FromForm] UpdatePropertyDTO model)
         {

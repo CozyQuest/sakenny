@@ -45,7 +45,16 @@ namespace sakenny.Application.DTO
         public List<IFormFile>? Images { get; set; }
 
         [FromForm(Name = "ServiceIds")]
-        public HashSet<int>? ServiceIds { get; set; }
+        public List<int>? ServiceIds { get; set; }
+
+        [FromForm(Name = "ImageUrlsToRemove")]
+        public List<string>? ImageUrlsToRemove { get; set; }
+
+        [FromForm(Name = "ReplaceAllImages")]
+        public bool ReplaceAllImages { get; set; } = false;
+
+        [FromForm(Name = "MainImageUrl")]
+        public string? MainImageUrl { get; set; } // For setting existing image as main
 
     }
 }
