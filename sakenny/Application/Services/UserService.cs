@@ -182,7 +182,8 @@ namespace sakenny.Services
             {
                 await _unitOfWork.userManager.RemoveFromRoleAsync(user, "User");
                 var respond = await _unitOfWork.userManager.AddToRoleAsync(user, "Host");
-                return respond;
+                user.HostRequest = false;
+                return await _unitOfWork.userManager.UpdateAsync(user);
 
             }
             catch (System.Exception)
