@@ -442,5 +442,7 @@ namespace sakenny.Application.Services
             return _mapper.Map<IEnumerable<HostedPropertyDTO>>(properties);
         }
 
+
+
     }
 }
