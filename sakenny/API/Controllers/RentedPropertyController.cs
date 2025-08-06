@@ -47,7 +47,13 @@ namespace sakenny.API.Controllers
             var earnings = await _rentingService.GetHostEarningsAsync(hostId);
 
             if (earnings == null || earnings.Items.Count == 0)
-                return NotFound("No earnings data found.");
+            {
+                return Ok(new HostEarningsDTO
+                {
+                    TotalProfit = 0,
+                    Items = new List<EarningsItemDTO>()
+                });
+            }
 
             return Ok(earnings);
         }

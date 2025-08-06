@@ -44,12 +44,11 @@ namespace sakenny.API.Controllers
                 return BadRequest("RentingCheckoutDTO cannot be null.");
             }
             // Get user ID from claims
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //if (string.IsNullOrEmpty(userId))
-            //{
-            //    return Unauthorized("User ID not found in token.");
-            //}
-            var userId = "28fc157b-d6d6-4903-9373-ce39a830ba6d";
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
             // Add validation
             if (rentingCheckoutDTO.StartDate >= rentingCheckoutDTO.EndDate)

@@ -17,5 +17,4 @@
         public string? OrderBy { get; set; } // "price_asc", "price_desc", etc.
     }
 
-
 }

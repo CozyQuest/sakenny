@@ -13,10 +13,12 @@ namespace sakenny.API.Controllers
     {
         private readonly UserService _userService;
         private readonly GoogleAuthService _googleAuthService;
-        public UserController(UserService userService, GoogleAuthService googleAuthService)
+        private readonly UserUpdateDeleteProfileService _userUpdateDeleteProfileService;
+        public UserController(UserService userService, GoogleAuthService googleAuthService, UserUpdateDeleteProfileService userUpdateDeleteProfileService)
         {
             _userService = userService;
             _googleAuthService = googleAuthService;
+            _userUpdateDeleteProfileService = userUpdateDeleteProfileService;
         }
 
         [HttpPost("/register")]
@@ -278,6 +280,53 @@ namespace sakenny.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { respond = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "User,Host")]
+        [HttpDelete("DeleteProfile")]
+        public async Task<IActionResult> DeleteProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                await _userUpdateDeleteProfileService.DeleteProfileAsync(userId);
+                return Ok("Profile deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        [Authorize(Roles = "User,Host")]
+        [HttpPut("UpdateProfile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDTO model)
+        {
+            if (model == null)
+            {
+                return BadRequest("Invalid profile data.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Returns validation errors
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null || userId != model.Id)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                await _userUpdateDeleteProfileService.UpdateUserProfileAsync(model);
+                return Ok("Profile updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

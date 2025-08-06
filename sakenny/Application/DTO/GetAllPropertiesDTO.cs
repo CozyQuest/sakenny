@@ -32,6 +32,7 @@ namespace sakenny.Application.DTO
             public int ReviewsCount { get; set; }
             public List<string>? ServiceNames { get; set; }
         }
+
     }
 
 }

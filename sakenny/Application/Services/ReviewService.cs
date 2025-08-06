@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using sakenny.Application.DTO;
 using sakenny.Application.Interfaces;
 using sakenny.DAL.Interfaces;
@@ -71,7 +72,7 @@ namespace sakenny.Application.Services
             if (existingReview != null)
             {
                 if (!string.IsNullOrEmpty(existingReview.ReviewText))
-                    throw new InvalidOperationException("You have already submitted a review text and cannot change it.");
+                    throw new InvalidOperationException("You have already submitted a review ");
 
                 bool hasExistingRate = existingReview.Rate >= 1 && existingReview.Rate <= 5;
                 bool hasRateInRequest = dto.Rate.HasValue && dto.Rate.Value >= 1 && dto.Rate.Value <= 5;
@@ -118,6 +119,7 @@ namespace sakenny.Application.Services
 
             return reviews.Select(r => new ReviewDTO
             {
+                UserId = r.UserId,
                 ReviewText = r.ReviewText,
                 Rate = r.Rate,
                 CreatedAt = r.CreatedAt,
