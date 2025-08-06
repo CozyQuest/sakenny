@@ -93,6 +93,19 @@ namespace sakenny.API.Mapping
             CreateMap<GetAllPropertiesDTO, Property>();
             CreateMap<PropertyFilterDTO, Property>();
 
+            CreateMap<Property, GetAllPropertiesDTO>()
+    .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src =>
+        src.Images != null && src.Images.Any() ? src.Images.First().Url : string.Empty))
+    .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src =>
+        src.Images != null ? src.Images.Select(img => img.Url).ToList() : new List<string>()))
+    .ForMember(dest => dest.PropertyTypeName, opt => opt.MapFrom(src =>
+        src.PropertyType != null ? src.PropertyType.Name : string.Empty))
+    .ForMember(dest => dest.ServiceNames, opt => opt.MapFrom(src =>
+        src.Services != null ? src.Services.Select(s => s.Name).ToList() : new List<string>()))
+    .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
+        src.Reviews != null && src.Reviews.Any() ? (double?)Math.Round(src.Reviews.Average(r => r.Rate), 2) : null))
+    .ForMember(dest => dest.ReviewsCount, opt => opt.MapFrom(src =>
+        src.Reviews != null ? src.Reviews.Count : 0));
 
 
         }

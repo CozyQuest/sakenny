@@ -26,12 +26,12 @@ namespace sakenny.Application.DTO
             public string MainImageUrl { get; set; }
             public string PropertyTypeName { get; set; }
 
-            // Optional nested data
             public List<string>? ImageUrls { get; set; }
             public double? AverageRating { get; set; }
             public int ReviewsCount { get; set; }
             public List<string>? ServiceNames { get; set; }
         }
+
     }
 
 }

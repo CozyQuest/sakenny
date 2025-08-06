@@ -390,6 +390,18 @@ namespace sakenny.Application.Services
 
 
 
+        public async Task<IEnumerable<GetAllPropertiesDTO>> GetAllPropertiesAsync()
+        {
+            var properties = await _context.Properties
+                .Include(p => p.Images)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Reviews)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<GetAllPropertiesDTO>>(properties);
+
+        }
 
 
 

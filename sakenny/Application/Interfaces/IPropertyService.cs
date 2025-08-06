@@ -15,6 +15,7 @@ namespace sakenny.Application.Interfaces
         Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId);
         Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync();
         Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter);
+        Task<IEnumerable<GetAllPropertiesDTO>> GetAllPropertiesAsync();
 
     }
 }

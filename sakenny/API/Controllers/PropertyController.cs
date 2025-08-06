@@ -127,5 +127,17 @@ namespace sakenny.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("all")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllProperties()
+        {
+            var properties = await _propertyService.GetAllPropertiesAsync();
+            return Ok(properties);
+        }
+
+
+      
+
+
     }
 }
