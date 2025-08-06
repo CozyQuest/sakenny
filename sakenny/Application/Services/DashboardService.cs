@@ -110,11 +110,13 @@ namespace sakenny.Application.Services
             return pending.Select(p => new PendingRequestDTO
             {
                 Id = p.id,
+                PropertyId = p.PropertyID,
                 Img = p.PropertySnapshot.MainImageUrl,
                 Title = p.PropertySnapshot.Title,
                 Type = p.PropertySnapshot.PropertyType.Name,
                 Location = $"{p.PropertySnapshot.Country}, {p.PropertySnapshot.City}",
                 Price = p.PropertySnapshot.Price,
+                OwnerId = p.PropertySnapshot.User.Id,
                 OwnerName = $"{p.PropertySnapshot.User.FirstName} {p.PropertySnapshot.User.LastName}"
             }).ToList();
         }
@@ -214,28 +216,42 @@ namespace sakenny.Application.Services
 
             var properties = await _unit.Properties.GetAllAsync();
 
-            // Join reviews to properties and calculate average rating
+            // Join reviews to properties and calculate average rating, rating count, and filter for top properties
             var top = reviews
                 .Where(r => r.Property != null)
                 .GroupBy(r => r.PropertyId)
                 .Select(g => new
                 {
-                    PropertyID = g.Key,
-                    AvgRating = g.Average(r => r.Rate)
+                    PropertyId = g.Key,
+                    AvgRating = g.Average(r => r.Rate),
+                    CountRatings = g.Count()
                 })
                 .Join(properties,
-                      rating => rating.PropertyID,
+                      rating => rating.PropertyId,
                       property => property.Id,
-                      (rating, property) => new { property, rating.AvgRating })
-                .Where(x => !x.property.IsDeleted && x.property.Status == PropertyStatus.Approved)
+                      (rating, property) => new
+                      {
+                          property.Id,
+                          property.Title,
+                          property.City,
+                          property.Country,
+                          property.MainImageUrl,
+                          property.IsDeleted,
+                          property.Status,
+                          rating.AvgRating,
+                          rating.CountRatings
+                      })
+                .Where(x => !x.IsDeleted && x.Status == PropertyStatus.Approved)
                 .OrderByDescending(x => x.AvgRating)
                 .Take(5)
                 .Select(x => new TopPropertyDTO
                 {
-                    Name = x.property.Title,
-                    Location = $"{x.property.City}, {x.property.Country}",
-                    Img = x.property.MainImageUrl,
-                    TotalRating = Math.Round(x.AvgRating, 1)
+                    PropertyId = x.Id,
+                    Img = x.MainImageUrl,
+                    Title = x.Title,
+                    Location = $"{x.City}, {x.Country}",
+                    TotalRating = Math.Round(x.AvgRating, 1),
+                    CountRatings = x.CountRatings
                 })
                 .ToList();
 
@@ -256,11 +272,14 @@ namespace sakenny.Application.Services
 
             return transactions.Take(5).Select(r => new TransactionDTO
             {
+                PropertyId = r.PropertyId,
                 Img = r.Property?.MainImageUrl ?? "assets/images/property/default.jpg",
                 Title = r.Property?.Title ?? "Untitled",
                 Location = $"{r.Property?.City ?? "Unknown"}, {r.Property?.Country ?? ""}".TrimEnd(',', ' '),
-                GuestName = $"{r.User?.FirstName ?? "Unknown"} {r.User?.LastName}".Trim(),
+                HostId = r.Property?.UserId ?? "",
                 HostName = $"{r.Property?.User?.FirstName ?? "Unknown"} {r.Property?.User?.LastName}".Trim(),
+                GuestId = r.UserId,
+                GuestName = $"{r.User?.FirstName ?? "Unknown"} {r.User?.LastName}".Trim(),
                 Price = $"{r.TotalPrice:C0}",
                 Date = r.TransactionDate.ToString("dd MMM yyyy")
             }).ToList();
