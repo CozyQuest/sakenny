@@ -115,6 +115,7 @@ namespace sakenny.Services
                 throw new InvalidOperationException("User not found.");
 
             return _mapper.Map<UserProfileDTO>(user);
+
         }
 
         public async Task<UserPublicProfileDTO> GetUserPublicProfileAsync(string userId)
@@ -123,7 +124,12 @@ namespace sakenny.Services
             if (user == null)
                 throw new InvalidOperationException("User not found.");
 
-            return _mapper.Map<UserPublicProfileDTO>(user);
+             var dto = _mapper.Map<UserPublicProfileDTO>(user);
+
+            var roles = await _unitOfWork.userManager.GetRolesAsync(user);
+            dto.Role = roles.FirstOrDefault() ?? "User";
+
+            return dto;
         }
 
         public async Task<IdentityResult> SetIdImagesAsync(String Id, BecomeHostRequest files)

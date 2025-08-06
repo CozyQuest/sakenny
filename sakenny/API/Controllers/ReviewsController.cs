@@ -31,26 +31,26 @@ namespace sakenny.API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized("You must log in first to post a rating.");
+                    return Forbid();
 
                 if (dto == null)
-                    return BadRequest("Rating data is required.");
+                    return BadRequest(new { message = "Rating data is required." });
 
                 await _reviewService.AddOrUpdateRatingAsync(propertyId, dto, userId);
 
-                return Ok("Rating submitted successfully.");
+                return Ok(new { message = "Rating submitted successfully." });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new { message = ex.Message });
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(ex.Message);
+                return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Unexpected error: {ex.Message}");
+                return StatusCode(500, new { message = $"Unexpected error: {ex.Message}" });
             }
         }
 
@@ -65,30 +65,30 @@ namespace sakenny.API.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
-                    return Unauthorized("You must log in first to post a review.");
+                    return Forbid();
 
                 if (dto == null)
-                    return BadRequest("Review data is required.");
+                    return BadRequest(new { message = "Review data is required." });
 
                 await _reviewService.AddReviewAsync(propertyId, dto, userId);
 
-                return Ok("Review submitted successfully.");
+                return Ok(new { message = "Review submitted successfully." });
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(ex.Message);
+                return Conflict(new { message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new { message = ex.Message });
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(ex.Message);
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Unexpected error: {ex.Message}");
+                return StatusCode(500, new { message = $"Unexpected error: {ex.Message}" });
             }
         }
 

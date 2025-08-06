@@ -108,7 +108,7 @@ namespace sakenny.API.Controllers
 
             if (!properties.Any())
             {
-                return Ok(new { message = "No properties added yet." });
+                return Ok(new List<OwnedPropertyDTO>());
             }
 
             return Ok(properties);
