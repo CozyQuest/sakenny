@@ -113,6 +113,225 @@ namespace sakenny.Application.Services
             }
         }
 
+
+        public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
+        {
+            var property = await _unitOfWork.Properties.GetByIdAsync(id, p => p.Services, p => p.Images);
+            if (property == null || property.IsDeleted)
+                throw new KeyNotFoundException("Property not found.");
+
+            if (property.UserId != userId)
+                throw new UnauthorizedAccessException("You do not have permission to update this property.");
+
+            _mapper.Map(model, property);
+
+            // Handle services (unchanged)
+            if (model.ServiceIds != null)
+            {
+                var services = await _unitOfWork.Services
+                    .GetAllAsync(s => model.ServiceIds.Contains(s.Id) && !s.IsDeleted);
+                property.Services.Clear();
+                foreach (var service in services)
+                {
+                    property.Services.Add(service);
+                }
+            }
+
+            // ✅ STEP 1: Handle image removals FIRST
+            if (model.ImageUrlsToRemove != null && model.ImageUrlsToRemove.Any())
+            {
+                var imagesToRemove = property.Images
+                    .Where(img => model.ImageUrlsToRemove.Contains(img.Url))
+                    .ToList();
+                    
+                foreach (var imageToRemove in imagesToRemove)
+                {
+                    property.Images.Remove(imageToRemove);
+                    // TODO: Delete the actual file from storage when IImageService.DeleteImageAsync is implemented
+                    // This would prevent orphaned files in blob storage
+                }
+            }
+
+            // ✅ STEP 2: Handle main image update (NEW LOGIC)
+            if (model.MainImage != null)
+            {
+                // User uploaded a new main image
+                var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
+                property.MainImageUrl = newMainImageUrl;
+                
+                // Add to images collection if not already present
+                if (!property.Images.Any(img => img.Url == newMainImageUrl))
+                {
+                    property.Images.Add(new Image
+                    {
+                        Url = newMainImageUrl,
+                        PropertyId = property.Id
+                    });
+                }
+            }
+            else if (!string.IsNullOrEmpty(model.MainImageUrl))
+            {
+                // ✅ NEW: User selected an existing image as main
+                // Verify the URL exists in the property's images
+                if (property.Images.Any(img => img.Url == model.MainImageUrl))
+                {
+                    property.MainImageUrl = model.MainImageUrl;
+                    Console.WriteLine($"✅ Set existing image as main: {model.MainImageUrl}");
+                }
+                else
+                {
+                    throw new ArgumentException($"The specified main image URL does not exist in this property's images: {model.MainImageUrl}");
+                }
+            }
+
+            // ✅ STEP 3: Add new additional images (PRESERVE existing ones)
+            if (model.Images != null && model.Images.Any())
+            {
+                var newImageUrls = await _imageService.UploadImagesAsync(model.Images);
+                
+                foreach (var imageUrl in newImageUrls)
+                {
+                    // Only add if not already present (prevent duplicates)
+                    if (!property.Images.Any(img => img.Url == imageUrl))
+                    {
+                        property.Images.Add(new Image
+                        {
+                            Url = imageUrl,
+                            PropertyId = property.Id
+                        });
+                    }
+                }
+            }
+
+            // Rest of the method unchanged (snapshot creation, etc.)
+            var permit = new PropertyPermit
+            {
+                PropertyID = property.Id,
+                status = PropertyStatus.Pending
+            };
+
+            var snapshot = _mapper.Map<PropertySnapshot>(property);
+            snapshot.PropertyId = property.Id;
+            snapshot.CreatedAt = DateTime.UtcNow;
+            snapshot.PropertyPermit = permit;
+            
+            permit.PropertySnapshot = snapshot;
+
+            property.PropertySnapshots.Add(snapshot);
+            property.PropertyPermits.Add(permit);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<PropertyDTO>(property);
+        }
+
+
+        public async Task<PropertyDTO> GetPropertyDetailsAsync(int id)
+        {
+            var includes = new Expression<Func<Property, object>>[]
+            {
+               p => p.Images,
+               p => p.PropertyType,
+               p => p.Services,
+               p => p.User
+            };
+
+            var property = await _unitOfWork.Properties.GetByIdAsync(id, includes);
+            if (property == null || property.IsDeleted)
+                throw new KeyNotFoundException("Property not found.");
+
+            return _mapper.Map<PropertyDTO>(property);
+        }
+
+        public async Task<List<HomeTopRatedPropertyDTO>> GetTopRatedPropertiesAsync()
+        {
+            var includes = new Expression<Func<Property, object>>[]
+            {
+                p => p.Images
+            };
+
+            var properties = await _unitOfWork.Properties.GetAllAsync(
+                p => !p.IsDeleted,
+                includes: includes
+            );
+
+            var result = new List<HomeTopRatedPropertyDTO>();
+
+            foreach (var property in properties)
+            {
+                // Use review service to get average rating and count
+                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(property.Id);
+                var reviews = await _unitOfWork.Reviews.GetAllAsync(r =>
+                    r.PropertyId == property.Id &&
+                    !r.IsDeleted &&
+                    r.Rate >= 1 && r.Rate <= 5
+                );
+
+                var reviewsCount = reviews.Count();
+
+                var dto = new HomeTopRatedPropertyDTO
+                {
+                    Id = property.Id.ToString(),
+                    Name = property.Title,
+                    Image = property.MainImageUrl,
+                    RentPerDay = property.Price,
+                    Rating = avgRating,
+                    ReviewsCount = reviewsCount,
+                    IsFavorite = false,
+                    Area = property.Space,
+                    Bathrooms = property.BathroomCount,
+                    Bedrooms = property.RoomCount,
+                    Location = $"{property.City}, {property.Country}"
+                };
+
+                result.Add(dto);
+            }
+
+            return result
+                .OrderByDescending(p => p.Rating)
+                .ThenByDescending(p => p.RentPerDay)
+                .Take(10)
+                .ToList();
+        }
+
+
+
+        public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId)
+        {
+
+            var properties = await _unitOfWork.Properties.GetAllAsync(
+                p => p.UserId == userId && !p.IsDeleted,
+                includes: p => p.Images
+            );
+
+            if (properties == null || !properties.Any())
+                return new List<OwnedPropertyDTO>();
+
+            var result = new List<OwnedPropertyDTO>();
+
+            foreach (var prop in properties)
+            {
+                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
+
+                result.Add(new OwnedPropertyDTO
+                {
+                    Id = prop.Id,
+                    Title = prop.Title,
+                    MainImageUrl = prop.MainImageUrl,
+                    PeopleCapacity = prop.PeopleCapacity,
+                    Space = prop.Space,
+                    RoomCount = prop.RoomCount,
+                    BathroomCount = prop.BathroomCount,
+                    Price = prop.Price,
+                    AverageRating = avgRating
+                });
+            }
+
+            return result;
+        }
+
+
+
         public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
             filter ??= new PropertyFilterDTO(); // Ensure filter is not null
@@ -181,227 +400,48 @@ namespace sakenny.Application.Services
             // Execute query so far and get list
             var properties = await query.ToListAsync();
 
-            // Apply service filtering in-memory
+            // ? Apply service filtering in-memory
             if (filter.ServiceIds?.Any(id => id > 0) == true)
             {
                 properties = properties
                     .Where(p => p.Services != null && p.Services.Any(s => filter.ServiceIds.Contains(s.Id)))
                     .ToList();
             }
+
             // Map result to DTO and return
             return _mapper.Map<List<PropertyDTO>>(properties);
         }
 
-        public async Task<PropertyDTO> UpdatePropertyAsync(int id, UpdatePropertyDTO model, string userId)
+
+
+        public async Task<IEnumerable<GetAllPropertiesDTO>> GetAllPropertiesAsync()
         {
-            var property = await _unitOfWork.Properties.GetByIdAsync(id, p => p.Services, p => p.Images);
-            if (property == null || property.IsDeleted)
-                throw new KeyNotFoundException("Property not found.");
+            var properties = await _context.Properties
+                .Include(p => p.Images)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Reviews)
+                .ToListAsync();
 
-            if (property.UserId != userId)
-                throw new UnauthorizedAccessException("You do not have permission to update this property.");
+            return _mapper.Map<IEnumerable<GetAllPropertiesDTO>>(properties);
 
-            _mapper.Map(model, property);
-
-            if (model.ServiceIds != null)
-            {
-                property.Services.Clear();
-                foreach (var serviceId in model.ServiceIds)
-                {
-                    var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
-                    if (service != null && !service.IsDeleted)
-                    {
-                        property.Services.Add(service);
-                    }
-                }
-            }
-
-            if (model.MainImage != null)
-            {
-                var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
-                property.MainImageUrl = newMainImageUrl;
-
-                property.Images.Add(new Image
-                {
-                    Url = newMainImageUrl,
-                    PropertyId = property.Id
-                });
-            }
-
-            if (model.Images != null && model.Images.Any())
-            {
-                property.Images.Clear();
-                var newImageUrls = await _imageService.UploadImagesAsync(model.Images);
-                foreach (var imageUrl in newImageUrls)
-                {
-                    property.Images.Add(new Image
-                    {
-                        Url = imageUrl,
-                        PropertyId = property.Id
-                    });
-                }
-            }
-
-            var snapshot = _mapper.Map<PropertySnapshot>(property);
-            snapshot.PropertyId = property.Id;
-            snapshot.CreatedAt = DateTime.UtcNow;
-
-            var permit = new PropertyPermit
-            {
-                PropertyID = property.Id,
-                PropertySnapshot = snapshot
-            };
-
-            snapshot.PropertyPermit = permit;
-            property.PropertySnapshots.Add(snapshot);
-            property.PropertyPermits.Add(permit);
-
-            await _unitOfWork.PropertySnapshots.AddAsync(snapshot);
-            await _unitOfWork.PropertyPermits.AddAsync(permit);
-
-            await _unitOfWork.SaveChangesAsync();
-
-            return _mapper.Map<PropertyDTO>(property);
         }
 
-        public async Task<PropertyDTO> GetPropertyDetailsAsync(int id)
-        {
-            var includes = new Expression<Func<Property, object>>[]
-            {
-               p => p.Images,
-               p => p.PropertyType,
-               p => p.Services,
-               p => p.User
-            };
-
-            var property = await _unitOfWork.Properties.GetByIdAsync(id, includes);
-            if (property == null || property.IsDeleted)
-                throw new KeyNotFoundException("Property not found.");
-
-            return _mapper.Map<PropertyDTO>(property);
-        }
-
-        public async Task<List<OwnedPropertyDTO>> GetTopRatedPropertiesAsync()
-        {
-            var includes = new Expression<Func<Property, object>>[]
-            {
-              p => p.Images
-            };
-
-            var properties = await _unitOfWork.Properties.GetAllAsync(
-                p => !p.IsDeleted,
-                includes: includes
-            );
-
-            var topRated = new List<OwnedPropertyDTO>();
-
-            foreach (var property in properties)
-            {
-                var averageRating = await _reviewService.GetAverageRatingForPropertyAsync(property.Id);
-
-                var dto = new OwnedPropertyDTO
-                {
-                    Id = property.Id,
-                    Title = property.Title,
-                    MainImageUrl = property.MainImageUrl,
-                    PeopleCapacity = property.PeopleCapacity,
-                    Space = property.Space,
-                    RoomCount = property.RoomCount,
-                    BathroomCount = property.BathroomCount,
-                    Price = property.Price,
-                    AverageRating = averageRating
-                };
-
-                topRated.Add(dto);
-            }
-
-            return topRated
-                .OrderByDescending(p => p.AverageRating)
-                .ThenByDescending(p => p.Price)
-                .Take(10)
-                .ToList();
-        }
-
-
-
-        public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId)
-        {
-
-            var properties = await _unitOfWork.Properties.GetAllAsync(
-                p => p.UserId == userId && !p.IsDeleted,
-                includes: p => p.Images
-            );
-
-            if (properties == null || !properties.Any())
-                return new List<OwnedPropertyDTO>();
-
-            var result = new List<OwnedPropertyDTO>();
-
-            foreach (var prop in properties)
-            {
-                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
-
-                result.Add(new OwnedPropertyDTO
-                {
-                    Id = prop.Id,
-                    Title = prop.Title,
-                    MainImageUrl = prop.MainImageUrl,
-                    PeopleCapacity = prop.PeopleCapacity,
-                    Space = prop.Space,
-                    RoomCount = prop.RoomCount,
-                    BathroomCount = prop.BathroomCount,
-                    Price = prop.Price,
-                    AverageRating = avgRating
-                });
-            }
-
-            return result;
-        }
         public async Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize)
         {
+            var properties = await _context.Properties
+                .Include(p => p.Images)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Services)
+                .Include(p => p.Reviews)
+                .Where(p => p.UserId == userId && !p.IsDeleted)
+                .Skip((PageNumber - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
 
-            var properties = await _unitOfWork.Properties.GetAllAsync(
-                p => p.UserId == userId && !p.IsDeleted,
-                includes: p => p.Images
-            );
-
-            if (properties == null || !properties.Any())
-                return new List<HostedPropertyDTO>();
-
-            var result = new List<HostedPropertyDTO>();
-
-            foreach (var prop in properties)
-            {
-                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
-                var reviews = await _reviewService.GetReviewsForPropertyAsync(prop.Id);
-                var reviewCount = reviews.Count();
-
-                result.Add(new HostedPropertyDTO
-                {
-                    Id = prop.Id,
-                    Title = prop.Title,
-                    ImageUrl = prop.MainImageUrl,
-                    Area = prop.Space,
-                    Beds = prop.RoomCount,
-                    Baths = prop.BathroomCount,
-                    Price = prop.Price,
-                    Rating = avgRating,
-                    ReviewCount = reviewCount,
-                    Location = $"{prop.City}, {prop.Country}"
-                });
-            }
-
-            return result.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
+            return _mapper.Map<IEnumerable<HostedPropertyDTO>>(properties);
         }
 
-        public async Task<List<GetAllPropertiesDTO>> GetAllPropertiesAsync()
-        {
-            var properties = await _unitOfWork.Properties.GetAllAsync();
-            if (properties == null || !properties.Any())
-                return new List<GetAllPropertiesDTO>();
-
-            return _mapper.Map<List<GetAllPropertiesDTO>>(properties);
-        }
 
 
     }

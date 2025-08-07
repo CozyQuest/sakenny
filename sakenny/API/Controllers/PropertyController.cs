@@ -1,9 +1,10 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using sakenny.Application.DTO;
+using sakenny.Application.DTO.sakenny.DAL.DTOs;
 using sakenny.Application.Interfaces;
+using System.Security.Claims;
 
 namespace sakenny.API.Controllers
 {
@@ -19,7 +20,7 @@ namespace sakenny.API.Controllers
             _propertyService = propertyService;
         }
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Host")]
         [Route("/AddProperty")]
         public async Task<IActionResult> AddProperty([FromForm] AddPropertyDTO model)
         {
@@ -40,15 +41,10 @@ namespace sakenny.API.Controllers
             return BadRequest("Can't add property");
         }
 
-        [HttpPost("filter")]
-        public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
-        {
-            var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
-            return Ok(result);
-        }
+
 
         [HttpPut]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Host")]
         [Route("/UpdateProperty/{id}")]
         public async Task<IActionResult> UpdateProperty(int id, [FromForm] UpdatePropertyDTO model)
         {
@@ -108,46 +104,36 @@ namespace sakenny.API.Controllers
 
             if (!properties.Any())
             {
-                return Ok(new List<OwnedPropertyDTO>());
-            }
-
-            return Ok(properties);
-        }
-        [HttpGet("/owned-properties")]
-        [Authorize(Roles = "Host")]
-        public async Task<IActionResult> GetOwnedProperties(int PageNumber = 1, int PageSize = 10)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) return Unauthorized();
-            var properties = await _propertyService.GetUserOwnedPropertiesPagedAsync(userId, PageNumber, PageSize);
-
-            if (!properties.Any())
-            {
                 return Ok(new { message = "No properties added yet." });
             }
 
             return Ok(properties);
         }
+
         [HttpGet("top-rated")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<OwnedPropertyDTO>>> GetTopRatedProperties()
+        public async Task<ActionResult<List<HomeTopRatedPropertyDTO>>> GetTopRatedProperties()
         {
             var properties = await _propertyService.GetTopRatedPropertiesAsync();
             return Ok(properties);
         }
 
-        [HttpGet("all-properties")]
+        [HttpPost("filter")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllPropertiesAsync()
+        public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
         {
-            var properties = await _propertyService.GetAllPropertiesAsync();
-            if (properties == null || !properties.Any())
-            {
-                return NotFound("No properties found.");
-            }
-            return Ok(properties);
+           
+            var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
+            return Ok(result);
         }
 
+        [HttpGet("all")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllProperties()
+        {
+            var properties = await _propertyService.GetAllPropertiesAsync();
+            return Ok(properties);
+        }
 
     }
 }

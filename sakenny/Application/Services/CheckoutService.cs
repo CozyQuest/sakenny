@@ -112,8 +112,7 @@ namespace sakenny.Application.Services
                         {"user_id", userId}
                     }
                     },
-                    // Set expiration time (optional - 24 hours)
-                    ExpiresAt = DateTime.UtcNow.AddHours(24),
+                    ExpiresAt = DateTime.UtcNow.AddHours(12),
                 };
                 var service = new SessionService();
                 var session = await service.CreateAsync(options);

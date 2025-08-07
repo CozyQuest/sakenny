@@ -1,4 +1,5 @@
-﻿using sakenny.Application.DTO;
+﻿using Microsoft.EntityFrameworkCore;
+using sakenny.Application.DTO;
 using sakenny.Application.Interfaces;
 using sakenny.DAL.Interfaces;
 using sakenny.DAL.Models;
@@ -21,14 +22,16 @@ namespace sakenny.Application.Services
             var rentings = await _unit.Rentings.GetAllAsync();
             var users = await _unit.Users.GetAllAsync();
             var properties = await _unit.Properties.GetAllAsync();
-            var propertyPermits = await _unit.PropertyPermits.GetAllAsync();
+            var approvedProperties = await _unit.Properties.GetAllAsync(
+                filter: p => !p.IsDeleted && p.Status == PropertyStatus.Approved
+            );
 
             return new List<StatDTO>
             {
                 new() { Title = "Total Revenue", Value = rentings.Sum(r => r.TotalPrice), Currency = "$", Icon = "currency-usd" },
                 new() { Title = "Total Users", Value = users.Count(), Icon = "account-group-outline" },
-                new() { Title = "Total Properties", Value = properties.Count() + propertyPermits.Count(), Icon = "home-city-outline" },
-                new() { Title = "Properties for Rent", Value = properties.Count(p => !p.IsDeleted), Icon = "home-clock-outline" },
+                new() { Title = "Total Properties", Value = properties.Count(), Icon = "home-city-outline" },
+                new() { Title = "Properties for Rent", Value = approvedProperties.Count(), Icon = "home-clock-outline" },
                 new() { Title = "Total Rentings", Value = rentings.Count(), Icon = "home-lock" },
             };
         }
@@ -99,37 +102,63 @@ namespace sakenny.Application.Services
                 includes:
                 [
                     p => p.PropertySnapshot,
-                    p => p.PropertySnapshot.PropertyType
+                    p => p.PropertySnapshot.PropertyType,
+                    p => p.PropertySnapshot.User
                 ]
             );
 
             return pending.Select(p => new PendingRequestDTO
             {
                 Id = p.id,
+                PropertyId = p.PropertyID,
                 Img = p.PropertySnapshot.MainImageUrl,
                 Title = p.PropertySnapshot.Title,
-                Date = p.PropertySnapshot.CreatedAt.ToString("yyyy-MM-dd"),
+                Type = p.PropertySnapshot.PropertyType.Name,
+                Location = $"{p.PropertySnapshot.Country}, {p.PropertySnapshot.City}",
                 Price = p.PropertySnapshot.Price,
-                Type = p.PropertySnapshot.PropertyType.Name
+                OwnerId = p.PropertySnapshot.User.Id,
+                OwnerName = $"{p.PropertySnapshot.User.FirstName} {p.PropertySnapshot.User.LastName}"
             }).ToList();
         }
 
         public async Task<bool> ApproveRequestAsync(int permitId)
         {
-            var permit = await _unit.PropertyPermits.GetByIdAsync(permitId);
+            var permits = await _unit.PropertyPermits.GetAllAsync(
+                p => p.id == permitId,
+                includes: p => p.Property
+            );
+
+            var permit = permits.FirstOrDefault();
             if (permit == null) return false;
 
             permit.status = PropertyStatus.Approved;
+
+            if (permit.Property != null)
+            {
+                permit.Property.Status = PropertyStatus.Approved;
+            }
+
             await _unit.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> RejectRequestAsync(int permitId)
         {
-            var permit = await _unit.PropertyPermits.GetByIdAsync(permitId);
+            var permits = await _unit.PropertyPermits.GetAllAsync(
+                p => p.id == permitId,
+                includes: p => p.Property
+            );
+
+            var permit = permits.FirstOrDefault();
             if (permit == null) return false;
 
             permit.status = PropertyStatus.Rejected;
+
+            if (permit.Property != null)
+            {
+                permit.Property.Status = PropertyStatus.Rejected;
+            }
+
             await _unit.SaveChangesAsync();
             return true;
         }
@@ -168,7 +197,7 @@ namespace sakenny.Application.Services
 
         public async Task<IEnumerable<MapMarkerDTO>> GetMapMarkersAsync()
         {
-            var markers = await _unit.Properties.GetAllAsync(p => !p.IsDeleted && p.Latitude != 0 && p.Longitude != 0);
+            var markers = await _unit.Properties.GetAllAsync(p => !p.IsDeleted && p.Status == PropertyStatus.Approved && p.Latitude != 0 && p.Longitude != 0);
 
             return markers
                 .GroupBy(p => p.City)
@@ -181,37 +210,78 @@ namespace sakenny.Application.Services
 
         public async Task<IEnumerable<TopPropertyDTO>> GetTopPropertiesAsync()
         {
-            var all = await _unit.Properties.GetAllAsync();
+            var reviews = await _unit.Reviews.GetAllAsync(
+                includes: [r => r.Property]
+            );
 
-            return all
-                .Where(p => !p.IsDeleted && p.Reviews?.Any() == true)
-                .OrderByDescending(p => p.Reviews!.Average(r => r.Rate))
-                .Take(5)
-                .Select(p => new TopPropertyDTO
+            var properties = await _unit.Properties.GetAllAsync();
+
+            // Join reviews to properties and calculate average rating, rating count, and filter for top properties
+            var top = reviews
+                .Where(r => r.Property != null)
+                .GroupBy(r => r.PropertyId)
+                .Select(g => new
                 {
-                    Name = p.Title,
-                    Location = $"{p.City}, {p.Country}",
-                    Img = p.MainImageUrl,
-                    TotalRating = p.Reviews!.Average(r => r.Rate)
-                }).ToList();
+                    PropertyId = g.Key,
+                    AvgRating = g.Average(r => r.Rate),
+                    CountRatings = g.Count()
+                })
+                .Join(properties,
+                      rating => rating.PropertyId,
+                      property => property.Id,
+                      (rating, property) => new
+                      {
+                          property.Id,
+                          property.Title,
+                          property.City,
+                          property.Country,
+                          property.MainImageUrl,
+                          property.IsDeleted,
+                          property.Status,
+                          rating.AvgRating,
+                          rating.CountRatings
+                      })
+                .Where(x => !x.IsDeleted && x.Status == PropertyStatus.Approved)
+                .OrderByDescending(x => x.AvgRating)
+                .Take(5)
+                .Select(x => new TopPropertyDTO
+                {
+                    PropertyId = x.Id,
+                    Img = x.MainImageUrl,
+                    Title = x.Title,
+                    Location = $"{x.City}, {x.Country}",
+                    TotalRating = Math.Round(x.AvgRating, 1),
+                    CountRatings = x.CountRatings
+                })
+                .ToList();
+
+            return top;
         }
 
-        public async Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync()
+        public async Task<IEnumerable<TransactionDTO>> GetRecentTransactionsAsync(string? hostId = null)
         {
+            var filter = hostId is null
+                ? (Expression<Func<Renting, bool>>)(r => !r.Property.IsDeleted && r.Property.Status == PropertyStatus.Approved)
+                : r => !r.Property.IsDeleted && r.Property.Status == PropertyStatus.Approved && r.Property.UserId == hostId;
+
             var transactions = await _unit.Rentings.GetAllAsync(
-                filter: r => !r.Property.IsDeleted,
+                filter: filter,
                 orderBy: q => q.OrderByDescending(r => r.TransactionDate),
-                includes: [r => r.User, r => r.Property]
+                includes: [r => r.User, r => r.Property, r => r.Property.User]
             );
 
             return transactions.Take(5).Select(r => new TransactionDTO
             {
+                PropertyId = r.PropertyId,
                 Img = r.Property?.MainImageUrl ?? "assets/images/property/default.jpg",
-                Date = r.TransactionDate.ToString("dd MMM yyyy"),
-                Name = $"{r.User?.FirstName ?? "Unknown"} {r.User?.LastName}",
+                Title = r.Property?.Title ?? "Untitled",
+                Location = $"{r.Property?.City ?? "Unknown"}, {r.Property?.Country ?? ""}".TrimEnd(',', ' '),
+                HostId = r.Property?.UserId ?? "",
+                HostName = $"{r.Property?.User?.FirstName ?? "Unknown"} {r.Property?.User?.LastName}".Trim(),
+                GuestId = r.UserId,
+                GuestName = $"{r.User?.FirstName ?? "Unknown"} {r.User?.LastName}".Trim(),
                 Price = $"{r.TotalPrice:C0}",
-                Type = "Rent",
-                Status = r.TotalPrice > 10000 ? "Unpaid" : "Paid"
+                Date = r.TransactionDate.ToString("dd MMM yyyy")
             }).ToList();
         }
     }

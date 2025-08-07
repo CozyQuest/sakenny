@@ -11,5 +11,6 @@ namespace sakenny.DAL.Interfaces
             params Expression<Func<T, object>>[] includes
             );
         Task<T> AddAsync(T entity);
+        Task<T> GetByIdAsync(string id, params Expression<Func<T, object>>[] includes);
     }
 }
