@@ -38,6 +38,7 @@ namespace sakenny.Application.Services
 
                 return new RentedPropertyDTO
                 {
+                    PropertyId = r.PropertyId,
                     Title = r.Property?.Title,
                     MainImageUrl = r.Property?.MainImageUrl,
                     Rate = userReview?.Rate ?? 1, 
