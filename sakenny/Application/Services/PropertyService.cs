@@ -143,7 +143,7 @@ namespace sakenny.Application.Services
                 var imagesToRemove = property.Images
                     .Where(img => model.ImageUrlsToRemove.Contains(img.Url))
                     .ToList();
-                    
+
                 foreach (var imageToRemove in imagesToRemove)
                 {
                     property.Images.Remove(imageToRemove);
@@ -158,7 +158,7 @@ namespace sakenny.Application.Services
                 // User uploaded a new main image
                 var newMainImageUrl = await _imageService.UploadImageAsync(model.MainImage);
                 property.MainImageUrl = newMainImageUrl;
-                
+
                 // Add to images collection if not already present
                 if (!property.Images.Any(img => img.Url == newMainImageUrl))
                 {
@@ -188,7 +188,7 @@ namespace sakenny.Application.Services
             if (model.Images != null && model.Images.Any())
             {
                 var newImageUrls = await _imageService.UploadImagesAsync(model.Images);
-                
+
                 foreach (var imageUrl in newImageUrls)
                 {
                     // Only add if not already present (prevent duplicates)
@@ -214,7 +214,7 @@ namespace sakenny.Application.Services
             snapshot.PropertyId = property.Id;
             snapshot.CreatedAt = DateTime.UtcNow;
             snapshot.PropertyPermit = permit;
-            
+
             permit.PropertySnapshot = snapshot;
 
             property.PropertySnapshots.Add(snapshot);
@@ -460,7 +460,7 @@ namespace sakenny.Application.Services
 
         }
 
-      
+
 
 
     }

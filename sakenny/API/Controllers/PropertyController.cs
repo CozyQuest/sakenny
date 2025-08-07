@@ -136,7 +136,7 @@ namespace sakenny.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Filter([FromBody] PropertyFilterDTO filterDto)
         {
-           
+
             var result = await _propertyService.GetFilteredPropertiesAsync(filterDto);
             return Ok(result);
         }
