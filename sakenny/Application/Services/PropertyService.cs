@@ -295,7 +295,6 @@ namespace sakenny.Application.Services
         }
 
 
-
         public async Task<IEnumerable<OwnedPropertyDTO>> GetUserOwnedPropertiesAsync(string userId)
         {
 
@@ -329,8 +328,42 @@ namespace sakenny.Application.Services
 
             return result;
         }
+        public async Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize)
+        {
 
+            var properties = await _unitOfWork.Properties.GetAllAsync(
+                p => p.UserId == userId && !p.IsDeleted,
+                includes: p => p.Images
+            );
 
+            if (properties == null || !properties.Any())
+                return new List<HostedPropertyDTO>();
+
+            var result = new List<HostedPropertyDTO>();
+
+            foreach (var prop in properties)
+            {
+                var avgRating = await _reviewService.GetAverageRatingForPropertyAsync(prop.Id);
+                var reviews = await _reviewService.GetReviewsForPropertyAsync(prop.Id);
+                var reviewCount = reviews.Count();
+
+                result.Add(new HostedPropertyDTO
+                {
+                    Id = prop.Id,
+                    Title = prop.Title,
+                    ImageUrl = prop.MainImageUrl,
+                    Area = prop.Space,
+                    Beds = prop.RoomCount,
+                    Baths = prop.BathroomCount,
+                    Price = prop.Price,
+                    Rating = avgRating,
+                    ReviewCount = reviewCount,
+                    Location = $"{prop.City}, {prop.Country}"
+                });
+            }
+
+            return result.Skip((PageNumber - 1) * PageSize).Take(PageSize).ToList();
+        }
 
         public async Task<List<PropertyDTO>> GetFilteredPropertiesAsync(PropertyFilterDTO filter)
         {
@@ -427,21 +460,7 @@ namespace sakenny.Application.Services
 
         }
 
-        public async Task<IEnumerable<HostedPropertyDTO>> GetUserOwnedPropertiesPagedAsync(string userId, int PageNumber, int PageSize)
-        {
-            var properties = await _context.Properties
-                .Include(p => p.Images)
-                .Include(p => p.PropertyType)
-                .Include(p => p.Services)
-                .Include(p => p.Reviews)
-                .Where(p => p.UserId == userId && !p.IsDeleted)
-                .Skip((PageNumber - 1) * PageSize)
-                .Take(PageSize)
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<HostedPropertyDTO>>(properties);
-        }
-
+      
 
 
     }

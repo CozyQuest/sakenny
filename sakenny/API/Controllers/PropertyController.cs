@@ -109,7 +109,21 @@ namespace sakenny.API.Controllers
 
             return Ok(properties);
         }
+        [HttpGet("/owned-properties")]
+        [Authorize(Roles = "Host")]
+        public async Task<IActionResult> GetOwnedProperties(int PageNumber = 1, int PageSize = 10)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+            var properties = await _propertyService.GetUserOwnedPropertiesPagedAsync(userId, PageNumber, PageSize);
 
+            if (!properties.Any())
+            {
+                return Ok(new { message = "No properties added yet." });
+            }
+
+            return Ok(properties);
+        }
         [HttpGet("top-rated")]
         [AllowAnonymous]
         public async Task<ActionResult<List<HomeTopRatedPropertyDTO>>> GetTopRatedProperties()
