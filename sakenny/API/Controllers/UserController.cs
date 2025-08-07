@@ -221,52 +221,46 @@ namespace sakenny.API.Controllers
                 return BadRequest(new { respond = ex.Message });
             }
         }
-        [Authorize(Roles = "Admin")]
-        [HttpPost("ConvertToHost/")]
-        public async Task<IActionResult> ConvertToHost()
+    [Authorize(Roles = "Admin")]
+        [HttpPost("ConvertToHost/{userId}")]
+        public async Task<IActionResult> ConvertToHost([FromRoute] string userId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
             try
             {
-                var Result = await _userService.ConvertToHost(userId);
-                if (Result.Succeeded)
+                var result = await _userService.ConvertToHost(userId);
+                if (result.Succeeded)
                 {
-                    return Ok(new { respond = "user converted successfully." });
+                    return Ok(new { respond = "User converted successfully." });
                 }
             }
             catch (Exception ex)
             {
                 return BadRequest(new { respond = ex.Message });
             }
+
             return BadRequest();
         }
+
         [Authorize(Roles = "Admin")]
-        [HttpPost("DenyConvertToHost/")]
-        public async Task<IActionResult> DenyConvertToHost()
+        [HttpPost("DenyConvertToHost/{userId}")]
+        public async Task<IActionResult> DenyConvertToHost([FromRoute] string userId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
             try
             {
-                var Result = await _userService.DenyConvertToHost(userId);
-                if (Result.Succeeded)
+                var result = await _userService.DenyConvertToHost(userId);
+                if (result.Succeeded)
                 {
-                    return Ok(new { respond = "Request is Added successfully." });
+                    return Ok(new { respond = "Request denied successfully." });
                 }
             }
             catch (Exception ex)
             {
                 return BadRequest(new { respond = ex.Message });
             }
+
             return BadRequest();
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPost("UserHostList/")]
         public IActionResult UserHostList()
