@@ -13,6 +13,7 @@
   <img src="https://img.shields.io/badge/SQL%20Server-DB-red?logo=microsoftsqlserver" width="143"/>
   <img src="https://img.shields.io/badge/Stripe-Payments-blueviolet?logo=stripe" width="180"/>
   <img src="https://img.shields.io/badge/Google%20Maps-Integration-green?logo=googlemaps" width="240"/>
+  <img src="https://img.shields.io/badge/Azure%20Blob-Storage-0078D4?logo=microsoftazure&logoColor=white" width="200"/>
 </p>
 
 
@@ -34,9 +35,17 @@ The platform supports **three types of accounts**:
 - 💳 Secure payment processing via **Stripe**  
 - 📍 Location services powered by **Google Maps API**  
 - 📊 Role-based dashboards (Customer, Host, Admin)  
-- 📅 Real-time booking validation (dates locked both frontend & backend)  
+- 📅 Real-time booking validation (dates locked both frontend & backend)
+- 🖼️ Image Storage using **Azure Blob Storage** (AzStorage via Azurite) – upload, manage, and retrieve property images with secure URLs.
 
 This repository contains the **Backend** of Sakenny, built with **.NET (N-Tier Architecture)** following **Clean Code principles** and the **Dependency Inversion Principle**.
+
+---  
+
+## 🎥 Demo  
+
+Check out the demo of **Sakenny** here:  
+👉 [Watch on Google Drive](YOUR_GOOGLE_DRIVE_LINK_HERE)  
 
 ---
 
@@ -62,7 +71,11 @@ The **Sakenny Backend** provides all the core functionalities required to run a 
 - **Google Maps API** integration:  
   - Hosts can select property location when submitting a listing.  
   - Customers can view property locations on a map.  
-  - Search results support **nearby property suggestions**.  
+  - Search results support **nearby property suggestions**.
+ 
+### 🖼️ Image Management
+- Images uploaded by hosts are stored in Azure Blob Storage (Azurite for local development).
+- Each image generates a secure URL stored in the database for efficient retrieval.
 
 ### 📅 Booking System  
 - Customers can rent properties for specific dates.  
@@ -93,6 +106,8 @@ The **Sakenny Backend** is built with modern technologies to ensure scalability,
 [![Stripe](https://img.shields.io/badge/Stripe-Payments-626CD9?style=for-the-badge&logo=stripe&logoColor=white)](#)
 [![Google Maps API](https://img.shields.io/badge/Google%20Maps-API-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white)](#)
 [![AutoMapper](https://img.shields.io/badge/AutoMapper-Mapping-FF6F00?style=for-the-badge&logo=automapper&logoColor=white)](#)
+[![Azure Blob Storage](https://img.shields.io/badge/Azure-Blob%20Storage-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](#)
+
 
 </p>  
 
