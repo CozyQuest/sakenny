@@ -180,6 +180,14 @@ Sakenny.Backend/
 - ✅ **Clean Code Practices** – Generic repositories, DTO mappings, and proper layering.  
 
 ---
+## 🎨 Frontend Repository  
+
+The **Sakenny Frontend** is built with **Angular**, styled mainly with **Tailwind CSS**, and enhanced with **PrimeNG** components.  
+It provides a responsive, user-friendly interface that connects seamlessly with this backend API.  
+
+👉 Check it out here: [Sakenny Frontend Repository](https://github.com/CozyQuest/front-end-.git)
+
+---
 
 ## 🖼️ Screenshots  
 
